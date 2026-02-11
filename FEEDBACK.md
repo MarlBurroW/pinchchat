@@ -17,7 +17,8 @@
 ## Item #3
 - **Date:** 2026-02-11
 - **Priority:** medium
-- **Status:** pending
+- **Status:** done
+- **Completed:** 2026-02-11 — commit `99b7db9`
 - **Description:** Ajouter le support i18n (internationalisation) — le projet open-source est en anglais, mais le deploy perso de Nicolas doit rester en français. Soit via une config `.env` (ex: `VITE_LOCALE=fr`), soit via un système de traduction léger. Les strings UI (placeholder input, bouton envoyer, statut connexion, etc.) doivent être configurables.
 
 ## Item #4
