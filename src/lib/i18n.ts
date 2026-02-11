@@ -49,6 +49,10 @@ const en = {
   // Tool call
   'tool.result': 'Result',
 
+  // Connection banner
+  'connection.reconnecting': 'Connection lost — reconnecting…',
+  'connection.reconnected': 'Reconnected!',
+
   // Timestamps
   'time.yesterday': 'Yesterday',
 } as const;
@@ -88,6 +92,9 @@ const fr: Record<keyof typeof en, string> = {
   'thinking.label': 'Réflexion',
 
   'tool.result': 'Résultat',
+
+  'connection.reconnecting': 'Connexion perdue — reconnexion…',
+  'connection.reconnected': 'Reconnecté !',
 
   'time.yesterday': 'Hier',
 };
