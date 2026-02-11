@@ -69,6 +69,53 @@ All configuration is optional — credentials are entered at runtime via the log
 
 > **Note:** The gateway token is entered at runtime and stored in `localStorage` — it is never baked into the build.
 
+## 🏗 Architecture
+
+```
+┌─────────────────────────────────────────────────────┐
+│                    PinchChat (Browser)               │
+│                                                      │
+│  ┌──────────┐  ┌───────────┐  ┌──────────────────┐  │
+│  │  Login    │→ │  App.tsx   │→ │  Chat + Sidebar  │  │
+│  │  Screen   │  │ (router)  │  │  (main UI)       │  │
+│  └──────────┘  └─────┬─────┘  └────────┬─────────┘  │
+│                      │                  │            │
+│                ┌─────▼──────────────────▼─────┐      │
+│                │     useGateway (hook)         │      │
+│                │  WebSocket state machine      │      │
+│                │  auth · sessions · messages   │      │
+│                └─────────────┬────────────────┘      │
+└──────────────────────────────┼───────────────────────┘
+                               │ WebSocket (JSON frames)
+                               ▼
+                    ┌─────────────────────┐
+                    │  OpenClaw Gateway   │
+                    │  (ws://host:18789)  │
+                    └─────────────────────┘
+```
+
+### Key Components
+
+| File | Role |
+|---|---|
+| `src/hooks/useGateway.ts` | WebSocket connection, auth, message streaming, session management |
+| `src/components/LoginScreen.tsx` | Runtime credential entry (stored in `localStorage`) |
+| `src/components/Chat.tsx` | Message list with auto-scroll and streaming display |
+| `src/components/ChatInput.tsx` | Input with file upload, paste, drag & drop, image compression |
+| `src/components/ChatMessage.tsx` | Markdown rendering, tool calls, thinking blocks |
+| `src/components/Sidebar.tsx` | Session list with token usage bars and activity indicators |
+| `src/components/Header.tsx` | Connection status, token progress bar, logout |
+| `src/lib/i18n.ts` | Lightweight i18n (English + French) |
+| `src/lib/gateway.ts` | WebSocket protocol helpers and message types |
+
+### Data Flow
+
+1. **Login** — User enters gateway URL + token → stored in `localStorage`
+2. **Connect** — `useGateway` opens a WebSocket and authenticates with the token
+3. **Sessions** — Gateway pushes session list; user selects one in the sidebar
+4. **Messages** — Messages stream in via WebSocket frames; the hook assembles partial chunks into complete messages
+5. **Send** — User input (+ optional file attachments) is sent as a JSON frame over the WebSocket
+
 ## 🛠 Tech Stack
 
 - [React](https://react.dev/) 19
