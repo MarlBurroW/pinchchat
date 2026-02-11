@@ -73,6 +73,12 @@ const en = {
   'shortcuts.help': 'Show shortcuts',
   'shortcuts.close': 'Close',
   'shortcuts.chatSection': 'Chat',
+
+  // Error boundary
+  'error.title': 'Something went wrong',
+  'error.description': 'An unexpected error occurred while rendering the interface. You can try again or reload the page.',
+  'error.retry': 'Try again',
+  'error.reload': 'Reload page',
   'shortcuts.navigationSection': 'Navigation',
   'shortcuts.generalSection': 'General',
 } as const;
@@ -133,6 +139,11 @@ const fr: Record<keyof typeof en, string> = {
   'shortcuts.help': 'Afficher les raccourcis',
   'shortcuts.close': 'Fermer',
   'shortcuts.chatSection': 'Chat',
+
+  'error.title': 'Quelque chose s\'est mal passé',
+  'error.description': 'Une erreur inattendue est survenue lors de l\'affichage. Vous pouvez réessayer ou recharger la page.',
+  'error.retry': 'Réessayer',
+  'error.reload': 'Recharger',
   'shortcuts.navigationSection': 'Navigation',
   'shortcuts.generalSection': 'Général',
 };
