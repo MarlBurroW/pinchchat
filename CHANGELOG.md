@@ -6,7 +6,17 @@ Format based on [Keep a Changelog](https://keepachangelog.com/), with [Conventio
 
 ## [Unreleased]
 
+*Nothing yet — contributions welcome!*
+
+## [1.1.0] — 2026-02-11
+
+A massive feature release turning PinchChat from a basic chat UI into a polished, accessible, and well-documented webchat client for OpenClaw.
+
 ### Added
+- **OG card image + social meta tags** — rich previews when sharing links on Twitter/Discord/etc. (`88b6494`)
+- **Retry/resend button on user messages** — resend a message if something went wrong (`5b2f3a3`)
+- **Browser notifications + tab badge** — get notified of new messages even when the tab is in the background (`473d23c`)
+- **PR template + security policy** — standardized PR descriptions and responsible disclosure process (`d020094`)
 - **ErrorBoundary** — graceful crash recovery with a user-friendly error screen instead of a blank page (`b61a232`)
 - **Keyboard shortcuts modal** — press `?` to see all available shortcuts (`ae83545`)
 - **Session search filter** — filter sessions in the sidebar with `Ctrl+K` shortcut (`1779709`)
@@ -39,6 +49,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/), with [Conventio
 - **Vendor code-splitting** — split React and markdown dependencies into separate chunks, eliminating the 500KB bundle warning (`d7bdf3b`)
 
 ### Fixed
+- **Prefers-reduced-motion** — all animations respect the user's OS motion preference (`fd66fed`)
 - **ARIA accessibility** — added ARIA attributes to interactive elements for screen reader support (`78f82fd`)
 - Landing page demo messages left-aligned (inherited text-align:center from hero) (`02e4bcf`)
 - i18n key for 'Parameters' label in tool call expansion (`195ad62`)
@@ -46,6 +57,9 @@ Format based on [Keep a Changelog](https://keepachangelog.com/), with [Conventio
 - Corrected `index.html` lang attribute, page title, favicon path, and added SEO meta tags (`24c7d00`)
 - Localized all hardcoded French strings to English with ARIA accessibility attributes (`3370916`)
 - Fixed OpenClaw repo link in README (`604f902`)
+
+### Improved
+- **TypeScript strictness** — replaced `any` types with proper interfaces across gateway client, hooks, and components (`693229c`)
 
 ### Renamed
 - **ClawChat → PinchChat** — full project rename across all files, configs, and docs (`d58c34f`)
