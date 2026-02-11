@@ -1,14 +1,29 @@
 import { genId } from './utils';
 
-export type GatewayEventHandler = (event: string, payload: any) => void;
-export type GatewayResponseHandler = (id: string, ok: boolean, payload: any) => void;
+/** JSON-safe payload type used for gateway messages. */
+export type JsonPayload = Record<string, unknown>;
+
+export type GatewayEventHandler = (event: string, payload: JsonPayload) => void;
+export type GatewayResponseHandler = (id: string, ok: boolean, payload: JsonPayload) => void;
+
+/** Shape of an incoming WebSocket message from the gateway. */
+interface GatewayMessage {
+  type: 'event' | 'res';
+  // event fields
+  event?: string;
+  payload?: JsonPayload;
+  // response fields
+  id?: string;
+  ok?: boolean;
+  error?: string;
+}
 
 export class GatewayClient {
   private ws: WebSocket | null = null;
-  private pendingRequests = new Map<string, { resolve: (v: any) => void; reject: (e: any) => void }>();
+  private pendingRequests = new Map<string, { resolve: (v: JsonPayload) => void; reject: (e: unknown) => void }>();
   private eventHandlers: GatewayEventHandler[] = [];
   private _onStatus: (s: 'disconnected' | 'connecting' | 'connected') => void = () => {};
-  private reconnectTimer: any = null;
+  private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
   private connected = false;
   private autoReconnect = true;
 
@@ -44,22 +59,22 @@ export class GatewayClient {
     this.ws.onopen = () => { console.log('[GW] WS open'); };
 
     this.ws.onmessage = (ev) => {
-      let msg: any;
-      try { msg = JSON.parse(ev.data); } catch { console.log('[GW] parse error', ev.data); return; }
+      let msg: GatewayMessage;
+      try { msg = JSON.parse(ev.data as string) as GatewayMessage; } catch { console.log('[GW] parse error', ev.data); return; }
       console.log('[GW] msg:', msg.type, msg.event || msg.id || '', msg.ok);
 
       if (msg.type === 'event') {
         if (msg.event === 'connect.challenge') {
           this.handleChallenge();
         } else {
-          for (const h of this.eventHandlers) h(msg.event, msg.payload);
+          for (const h of this.eventHandlers) h(msg.event ?? '', msg.payload ?? {});
         }
-      } else if (msg.type === 'res') {
+      } else if (msg.type === 'res' && msg.id) {
         const pending = this.pendingRequests.get(msg.id);
         if (pending) {
           this.pendingRequests.delete(msg.id);
-          if (msg.ok) pending.resolve(msg.payload);
-          else pending.reject(msg.payload || msg.error);
+          if (msg.ok) pending.resolve(msg.payload ?? {});
+          else pending.reject(msg.payload ?? msg.error ?? 'unknown error');
         }
       }
     };
@@ -118,7 +133,7 @@ export class GatewayClient {
     this._onStatus('disconnected');
   }
 
-  request(id: string, method: string, params: any): Promise<any> {
+  request(id: string, method: string, params: JsonPayload): Promise<JsonPayload> {
     return new Promise((resolve, reject) => {
       if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
         return reject(new Error('not connected'));
@@ -134,7 +149,7 @@ export class GatewayClient {
     });
   }
 
-  async send(method: string, params: any): Promise<any> {
+  async send(method: string, params: JsonPayload): Promise<JsonPayload> {
     const id = genId('req');
     return this.request(id, method, params);
   }

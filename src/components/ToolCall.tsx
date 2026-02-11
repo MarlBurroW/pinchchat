@@ -122,33 +122,40 @@ export function HighlightedPre({ text, className }: { text: string; className: s
   return <pre className={className}>{text}</pre>;
 }
 
-function getContextHint(name: string, input: any): string | null {
+function str(v: unknown): string | null {
+  return typeof v === 'string' ? v : null;
+}
+
+function getContextHint(name: string, input: Record<string, unknown> | undefined): string | null {
   if (!input || typeof input !== 'object') return null;
   switch (name) {
     case 'exec':
-      return input.command ? truncate(input.command, 60) : null;
+      return str(input.command) ? truncate(str(input.command)!, 60) : null;
     case 'Read': case 'read':
     case 'Write': case 'write':
     case 'Edit': case 'edit':
-      return input.file_path || input.path || null;
+      return str(input.file_path) || str(input.path) || null;
     case 'web_search':
-      return input.query ? truncate(input.query, 50) : null;
+      return str(input.query) ? truncate(str(input.query)!, 50) : null;
     case 'web_fetch':
-      return input.url ? truncate(input.url, 60) : null;
+      return str(input.url) ? truncate(str(input.url)!, 60) : null;
     case 'browser':
-      return input.action || null;
-    case 'message':
-      return input.action ? `${input.action}${input.target ? ' → ' + input.target : ''}` : null;
+      return str(input.action) || null;
+    case 'message': {
+      const action = str(input.action);
+      const target = str(input.target);
+      return action ? `${action}${target ? ' → ' + target : ''}` : null;
+    }
     case 'memory_search':
-      return input.query ? truncate(input.query, 50) : null;
+      return str(input.query) ? truncate(str(input.query)!, 50) : null;
     case 'memory_get':
-      return input.path || null;
+      return str(input.path) || null;
     case 'cron':
-      return input.action || null;
+      return str(input.action) || null;
     case 'sessions_spawn':
-      return input.task ? truncate(input.task, 50) : null;
+      return str(input.task) ? truncate(str(input.task)!, 50) : null;
     case 'image':
-      return input.prompt ? truncate(input.prompt, 50) : null;
+      return str(input.prompt) ? truncate(str(input.prompt)!, 50) : null;
     default:
       return null;
   }
@@ -184,7 +191,7 @@ function extractImageFromResult(result: string): { src: string; remaining: strin
   return null;
 }
 
-export function ToolCall({ name, input, result }: { name: string; input?: any; result?: string }) {
+export function ToolCall({ name, input, result }: { name: string; input?: Record<string, unknown>; result?: string }) {
   const t = useT();
   const [open, setOpen] = useState(false);
   const c = getColor(name);

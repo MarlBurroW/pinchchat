@@ -1,17 +1,21 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { GatewayClient } from '../lib/gateway';
+import { GatewayClient, type JsonPayload } from '../lib/gateway';
 import { genIdempotencyKey } from '../lib/utils';
 import { getStoredCredentials, storeCredentials, clearCredentials } from '../components/LoginScreen';
 import type { ChatMessage, MessageBlock, ConnectionStatus, Session } from '../types';
 
-function extractText(message: any): string {
+interface ChatPayloadMessage {
+  content?: string | Array<{ type: string; text?: string }>;
+}
+
+function extractText(message: ChatPayloadMessage | undefined): string {
   if (!message) return '';
   const content = message.content;
   if (typeof content === 'string') return content;
   if (Array.isArray(content)) {
     return content
-      .filter((b: any) => b.type === 'text' && typeof b.text === 'string')
-      .map((b: any) => b.text)
+      .filter((b) => b.type === 'text' && typeof b.text === 'string')
+      .map((b) => b.text as string)
       .join('\n');
   }
   return '';
@@ -72,7 +76,11 @@ export function useGateway() {
       }
       if (event !== 'chat') return;
 
-      const { state, runId, message, errorMessage, sessionKey: evtSession } = payload;
+      const state = payload.state as string | undefined;
+      const runId = payload.runId as string;
+      const message = payload.message as ChatPayloadMessage | undefined;
+      const errorMessage = payload.errorMessage as string | undefined;
+      const evtSession = payload.sessionKey as string | undefined;
 
       if (evtSession) {
         if (state === 'delta') {
@@ -167,12 +175,12 @@ export function useGateway() {
     }
   }, [setupClient]);
 
-  const handleAgentEvent = useCallback((payload: any) => {
+  const handleAgentEvent = useCallback((payload: JsonPayload) => {
     if (payload?.stream !== 'tool') return;
-    const data = payload.data ?? {};
-    const phase = data.phase;
-    const toolCallId = data.toolCallId;
-    const name = data.name || 'tool';
+    const data = (payload.data ?? {}) as Record<string, unknown>;
+    const phase = data.phase as string | undefined;
+    const toolCallId = data.toolCallId as string | undefined;
+    const name = (data.name as string) || 'tool';
     if (!toolCallId) return;
 
     setMessages(prev => {
@@ -185,11 +193,12 @@ export function useGateway() {
         updated.blocks.push({
           type: 'tool_use' as const,
           name,
-          input: data.args,
+          input: (data.args as Record<string, unknown>) ?? {},
           id: toolCallId,
         });
       } else if (phase === 'result') {
-        const result = typeof data.result === 'string' ? data.result : JSON.stringify(data.result, null, 2);
+        const rawResult = data.result;
+        const result = typeof rawResult === 'string' ? rawResult : JSON.stringify(rawResult, null, 2);
         updated.blocks.push({
           type: 'tool_result' as const,
           content: result?.slice(0, 500) || '',
@@ -205,15 +214,16 @@ export function useGateway() {
   const loadSessions = useCallback(async () => {
     try {
       const res = await clientRef.current?.send('sessions.list', {});
-      if (res?.sessions) {
-        setSessions(res.sessions.map((s: any) => ({
-          key: s.key || s.sessionKey,
-          label: s.label || s.key || s.sessionKey,
-          messageCount: s.messageCount,
-          totalTokens: s.totalTokens,
-          contextTokens: s.contextTokens,
-          inputTokens: s.inputTokens,
-          outputTokens: s.outputTokens,
+      const sessionList = res?.sessions as Array<Record<string, unknown>> | undefined;
+      if (sessionList) {
+        setSessions(sessionList.map((s) => ({
+          key: (s.key || s.sessionKey) as string,
+          label: (s.label || s.key || s.sessionKey) as string,
+          messageCount: s.messageCount as number | undefined,
+          totalTokens: s.totalTokens as number | undefined,
+          contextTokens: s.contextTokens as number | undefined,
+          inputTokens: s.inputTokens as number | undefined,
+          outputTokens: s.outputTokens as number | undefined,
         })));
       }
     } catch {}
@@ -222,9 +232,10 @@ export function useGateway() {
   const loadHistory = useCallback(async (sessionKey: string) => {
     try {
       const res = await clientRef.current?.send('chat.history', { sessionKey, limit: 100 });
-      if (res?.messages) {
-        const rawMsgs: any[] = res.messages;
-        const msgs: ChatMessage[] = rawMsgs.map((m: any, i: number) => {
+      const rawMsgs = res?.messages as Array<Record<string, unknown>> | undefined;
+      if (rawMsgs) {
+        /* eslint-disable @typescript-eslint/no-explicit-any -- raw gateway history messages have dynamic shape */
+        const msgs: ChatMessage[] = rawMsgs.map((m: Record<string, any>, i: number) => {
           const blocks: MessageBlock[] = [];
           if (m.content) {
             if (Array.isArray(m.content)) {
@@ -269,19 +280,20 @@ export function useGateway() {
           return {
             id: m.id || `hist-${i}`,
             role,
-            content: blocks.filter(b => b.type === 'text').map(b => (b as any).text).join(''),
+            content: blocks.filter((b): b is Extract<MessageBlock, { type: 'text' }> => b.type === 'text').map(b => b.text).join(''),
             timestamp: m.timestamp || Date.now(),
             blocks,
           };
         });
         const merged: ChatMessage[] = [];
         for (const msg of msgs) {
-          if ((msg as any).isToolResult && merged.length > 0 && merged[merged.length - 1].role === 'assistant') {
+          const isToolResult = 'isToolResult' in msg && (msg as ChatMessage & { isToolResult?: boolean }).isToolResult;
+          if (isToolResult && merged.length > 0 && merged[merged.length - 1].role === 'assistant') {
             merged[merged.length - 1] = {
               ...merged[merged.length - 1],
               blocks: [...merged[merged.length - 1].blocks, ...msg.blocks],
             };
-          } else if ((msg as any).isToolResult) {
+          } else if (isToolResult) {
             // skip orphan
           } else {
             merged.push(msg);

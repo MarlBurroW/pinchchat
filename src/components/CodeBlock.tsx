@@ -10,7 +10,7 @@ export function CodeBlock(props: HTMLAttributes<HTMLPreElement>) {
 
   const handleCopy = useCallback(() => {
     // Extract text from the nested <code> element
-    const code = (props.children as any)?.props?.children;
+    const code = (props.children as React.ReactElement<{ children?: string }> | undefined)?.props?.children;
     if (typeof code === 'string') {
       navigator.clipboard.writeText(code).then(() => {
         setCopied(true);

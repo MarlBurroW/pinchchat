@@ -11,7 +11,7 @@ export interface ChatMessage {
 export type MessageBlock =
   | { type: 'text'; text: string }
   | { type: 'thinking'; text: string }
-  | { type: 'tool_use'; name: string; input: any; id?: string }
+  | { type: 'tool_use'; name: string; input: Record<string, unknown>; id?: string }
   | { type: 'tool_result'; content: string; toolUseId?: string; name?: string }
   | { type: 'image'; mediaType: string; data?: string; url?: string };
 

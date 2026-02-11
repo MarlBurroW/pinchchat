@@ -148,7 +148,7 @@ function renderTextBlocks(blocks: MessageBlock[]) {
   return getTextBlocks(blocks).map((block, i) => (
     <div key={`text-${i}`} className="markdown-body">
       <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]} rehypePlugins={[rehypeHighlight]} components={markdownComponents}>
-        {autoFormatText((block as any).text)}
+        {autoFormatText((block as Extract<MessageBlock, { type: 'text' }>).text)}
       </ReactMarkdown>
     </div>
   ));
@@ -238,7 +238,7 @@ function CopyButton({ text }: { text: string }) {
 /** Extract plain text from message blocks for clipboard copy */
 function getPlainText(message: ChatMessageType): string {
   if (message.blocks.length > 0) {
-    return getTextBlocks(message.blocks).map(b => (b as any).text).join('\n\n');
+    return getTextBlocks(message.blocks).map(b => (b as Extract<MessageBlock, { type: 'text' }>).text).join('\n\n');
   }
   return message.content;
 }
