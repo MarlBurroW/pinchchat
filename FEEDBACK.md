@@ -51,7 +51,8 @@
 ## Item #7
 - **Date:** 2026-02-11
 - **Priority:** high
-- **Status:** pending
+- **Status:** done
+- **Completed:** 2026-02-11 — commit `762a5f2`
 - **Description:** Affichage des images dans le chat
   - Rendre les images inline dans les messages (quand le gateway envoie des images en base64/URL via `mediaUrls` ou content blocks de type image)
   - Rendre les images dans les tool results (quand un tool `read` retourne une image, l'afficher au lieu de juste "Read image file [image/png]")
