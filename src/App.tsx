@@ -1,5 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useGateway } from './hooks/useGateway';
+import { useNotifications } from './hooks/useNotifications';
 import { Header } from './components/Header';
 import { Sidebar } from './components/Sidebar';
 import { Chat } from './components/Chat';
@@ -15,6 +16,21 @@ export default function App() {
   } = useGateway();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
+  const { notify } = useNotifications();
+  const prevMessageCountRef = useRef(messages.length);
+
+  // Notify on new assistant messages when tab is not focused
+  useEffect(() => {
+    const prevCount = prevMessageCountRef.current;
+    prevMessageCountRef.current = messages.length;
+    if (messages.length > prevCount) {
+      const last = messages[messages.length - 1];
+      if (last && last.role === 'assistant' && !last.isStreaming) {
+        const preview = last.content?.slice(0, 100) || 'New message';
+        notify('PinchChat', preview);
+      }
+    }
+  }, [messages, notify]);
 
   // Close sidebar on Escape key, open shortcuts on ?
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
