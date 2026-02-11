@@ -14,6 +14,10 @@
 
 > 🎬 **[See the live demo →](https://marlburrow.github.io/pinchchat/)** — interactive preview of the UI with tool call visualization, streaming, and more.
 
+<p align="center">
+  <img src="public/screenshot.png" alt="PinchChat Screenshot" width="800" />
+</p>
+
 ## ✨ Features
 
 - 🔧 **Tool call visualization** — see what your agent is doing in real-time: colored badges, visible parameters, expandable results. The killer feature missing from every other chat UI.
