@@ -43,7 +43,8 @@
 ## Item #6
 - **Date:** 2026-02-11
 - **Priority:** high
-- **Status:** in-progress
+- **Status:** done
+- **Completed:** 2026-02-11 — commit `5fd7300`
 - **Description:** Installation simplifiée — Docker + oneliner
   - **Dockerfile** : image légère (nginx:alpine ou similar) qui sert le build statique. Multi-stage : node pour build, nginx pour serve. Pas de secrets dans l'image (tout est runtime via le login screen).
   - **docker-compose.yml** : exemple simple avec juste le container PinchChat
