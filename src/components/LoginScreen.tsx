@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Bot, Sparkles, Eye, EyeOff, Loader2 } from 'lucide-react';
+import { Sparkles, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { useT } from '../hooks/useLocale';
 
 interface Props {
@@ -54,9 +54,7 @@ export function LoginScreen({ onConnect, error, isConnecting }: Props) {
       <div className="w-full max-w-md mx-4">
         {/* Logo */}
         <div className="flex flex-col items-center gap-3 mb-8">
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-white/10 bg-zinc-800/60 shadow-lg shadow-cyan-500/5">
-            <Bot className="h-7 w-7 text-cyan-200" />
-          </div>
+          <img src="/logo.png" alt="PinchChat" className="h-20 w-20 drop-shadow-lg" />
           <div className="flex items-center gap-2">
             <h1 className="text-2xl font-bold text-zinc-200 tracking-wide">{t('login.title')}</h1>
             <Sparkles className="h-5 w-5 text-cyan-300/60" />

@@ -1,4 +1,4 @@
-import { Menu, Bot, Sparkles, LogOut } from 'lucide-react';
+import { Menu, Sparkles, LogOut } from 'lucide-react';
 import type { ConnectionStatus, Session } from '../types';
 import { useT } from '../hooks/useLocale';
 import { LanguageSelector } from './LanguageSelector';
@@ -22,9 +22,7 @@ export function Header({ status, sessionKey, onToggleSidebar, activeSessionData,
         <Menu size={20} />
       </button>
       <div className="flex items-center gap-3 flex-1 min-w-0">
-        <div className="flex h-9 w-9 items-center justify-center rounded-2xl border border-white/8 bg-zinc-800/40">
-          <Bot className="h-4 w-4 text-cyan-200" />
-        </div>
+        <img src="/logo.png" alt="PinchChat" className="h-9 w-9 rounded-2xl" />
         <div className="min-w-0">
           <div className="flex items-center gap-2">
             <span className="font-semibold text-zinc-300 text-sm tracking-wide">{t('header.title')}</span>

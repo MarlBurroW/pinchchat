@@ -1,4 +1,8 @@
-# 🦞 PinchChat
+<p align="center">
+  <img src="public/logo.png" alt="PinchChat" width="120" />
+</p>
+
+<h1 align="center">PinchChat</h1>
 
 [![CI](https://github.com/MarlBurroW/pinchchat/actions/workflows/ci.yml/badge.svg)](https://github.com/MarlBurroW/pinchchat/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
