@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 import { ChatMessageComponent } from './ChatMessage';
 import { ChatInput } from './ChatInput';
 import { TypingIndicator } from './TypingIndicator';
@@ -17,7 +17,6 @@ interface Props {
 function isNoReply(msg: ChatMessage): boolean {
   const text = (msg.content || '').trim();
   if (text === 'NO_REPLY') return true;
-  // Also check text blocks for NO_REPLY-only content
   const textBlocks = msg.blocks.filter(b => b.type === 'text');
   if (textBlocks.length === 1 && (textBlocks[0] as { text: string }).text.trim() === 'NO_REPLY') return true;
   return false;
@@ -25,10 +24,8 @@ function isNoReply(msg: ChatMessage): boolean {
 
 function hasVisibleContent(msg: ChatMessage): boolean {
   if (msg.role === 'user') return true;
-  // Filter out NO_REPLY messages (internal agent responses)
   if (msg.role === 'assistant' && isNoReply(msg)) return false;
   if (msg.blocks.length === 0) return !!msg.content;
-  // Show all assistant messages — tool-only ones render as compact inline
   return msg.blocks.some(b =>
     (b.type === 'text' && b.text.trim()) ||
     b.type === 'thinking' ||
@@ -44,18 +41,60 @@ function hasStreamedText(messages: ChatMessage[]): boolean {
   return last.blocks.some(b => b.type === 'text' && b.text.trim().length > 0) || (last.content?.trim().length > 0);
 }
 
+/** Threshold in pixels — if the user is within this distance of the bottom, auto-scroll */
+const SCROLL_THRESHOLD = 150;
+
 export function Chat({ messages, isGenerating, status, onSend, onAbort }: Props) {
   const bottomRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const isNearBottomRef = useRef(true);
+  const userSentRef = useRef(false);
 
+  const checkIfNearBottom = useCallback(() => {
+    const el = scrollContainerRef.current;
+    if (!el) return;
+    const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
+    isNearBottomRef.current = distanceFromBottom <= SCROLL_THRESHOLD;
+  }, []);
+
+  const scrollToBottom = useCallback((behavior: ScrollBehavior = 'smooth') => {
+    bottomRef.current?.scrollIntoView({ behavior });
+  }, []);
+
+  // Track scroll position to decide whether to auto-scroll
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, isGenerating]);
+    const el = scrollContainerRef.current;
+    if (!el) return;
+    const handler = () => checkIfNearBottom();
+    el.addEventListener('scroll', handler, { passive: true });
+    return () => el.removeEventListener('scroll', handler);
+  }, [checkIfNearBottom]);
+
+  // Auto-scroll when messages change, but only if user is near bottom or just sent a message
+  useEffect(() => {
+    if (userSentRef.current) {
+      // User just sent a message — always scroll to bottom
+      userSentRef.current = false;
+      scrollToBottom('smooth');
+      isNearBottomRef.current = true;
+      return;
+    }
+    if (isNearBottomRef.current) {
+      scrollToBottom('smooth');
+    }
+  }, [messages, isGenerating, scrollToBottom]);
+
+  // Wrap onSend to flag that user initiated a message
+  const handleSend = useCallback((text: string, attachments?: Array<{ mimeType: string; fileName: string; content: string }>) => {
+    userSentRef.current = true;
+    onSend(text, attachments);
+  }, [onSend]);
 
   const showTyping = isGenerating && !hasStreamedText(messages);
 
   return (
     <div className="flex-1 flex flex-col min-h-0">
-      <div className="flex-1 overflow-y-auto" role="log" aria-label={t('chat.messages')} aria-live="polite">
+      <div ref={scrollContainerRef} className="flex-1 overflow-y-auto relative" role="log" aria-label={t('chat.messages')} aria-live="polite">
         <div className="max-w-4xl mx-auto py-4">
           {messages.length === 0 && (
             <div className="flex flex-col items-center justify-center h-[60vh] text-zinc-500">
@@ -76,7 +115,7 @@ export function Chat({ messages, isGenerating, status, onSend, onAbort }: Props)
           <div ref={bottomRef} />
         </div>
       </div>
-      <ChatInput onSend={onSend} onAbort={onAbort} isGenerating={isGenerating} disabled={status !== 'connected'} />
+      <ChatInput onSend={handleSend} onAbort={onAbort} isGenerating={isGenerating} disabled={status !== 'connected'} />
     </div>
   );
 }
