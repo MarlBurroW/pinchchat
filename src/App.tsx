@@ -5,6 +5,7 @@ import { Sidebar } from './components/Sidebar';
 import { Chat } from './components/Chat';
 import { LoginScreen } from './components/LoginScreen';
 import { ConnectionBanner } from './components/ConnectionBanner';
+import { KeyboardShortcuts } from './components/KeyboardShortcuts';
 
 export default function App() {
   const {
@@ -13,13 +14,21 @@ export default function App() {
     authenticated, login, logout, connectError, isConnecting,
   } = useGateway();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [shortcutsOpen, setShortcutsOpen] = useState(false);
 
-  // Close sidebar on Escape key
+  // Close sidebar on Escape key, open shortcuts on ?
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     if (e.key === 'Escape' && sidebarOpen) {
       setSidebarOpen(false);
     }
-  }, [sidebarOpen]);
+    // Open shortcuts help with ? (only when not typing in an input)
+    if (e.key === '?' && !shortcutsOpen) {
+      const tag = (e.target as HTMLElement)?.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || (e.target as HTMLElement)?.isContentEditable) return;
+      e.preventDefault();
+      setShortcutsOpen(true);
+    }
+  }, [sidebarOpen, shortcutsOpen]);
 
   useEffect(() => {
     document.addEventListener('keydown', handleKeyDown);
@@ -54,6 +63,7 @@ export default function App() {
         <ConnectionBanner status={status} />
         <Chat messages={messages} isGenerating={isGenerating} status={status} onSend={sendMessage} onAbort={abort} />
       </div>
+      <KeyboardShortcuts open={shortcutsOpen} onClose={() => setShortcutsOpen(false)} />
     </div>
   );
 }

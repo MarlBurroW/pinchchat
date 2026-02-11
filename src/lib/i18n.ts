@@ -62,6 +62,19 @@ const en = {
 
   // Timestamps
   'time.yesterday': 'Yesterday',
+
+  // Keyboard shortcuts
+  'shortcuts.title': 'Keyboard Shortcuts',
+  'shortcuts.send': 'Send message',
+  'shortcuts.newline': 'New line',
+  'shortcuts.search': 'Search sessions',
+  'shortcuts.closeSidebar': 'Close sidebar / search',
+  'shortcuts.stop': 'Stop generation',
+  'shortcuts.help': 'Show shortcuts',
+  'shortcuts.close': 'Close',
+  'shortcuts.chatSection': 'Chat',
+  'shortcuts.navigationSection': 'Navigation',
+  'shortcuts.generalSection': 'General',
 } as const;
 
 const fr: Record<keyof typeof en, string> = {
@@ -110,6 +123,18 @@ const fr: Record<keyof typeof en, string> = {
   'message.copied': 'Copié !',
 
   'time.yesterday': 'Hier',
+
+  'shortcuts.title': 'Raccourcis clavier',
+  'shortcuts.send': 'Envoyer le message',
+  'shortcuts.newline': 'Nouvelle ligne',
+  'shortcuts.search': 'Rechercher des sessions',
+  'shortcuts.closeSidebar': 'Fermer la barre / recherche',
+  'shortcuts.stop': 'Arrêter la génération',
+  'shortcuts.help': 'Afficher les raccourcis',
+  'shortcuts.close': 'Fermer',
+  'shortcuts.chatSection': 'Chat',
+  'shortcuts.navigationSection': 'Navigation',
+  'shortcuts.generalSection': 'Général',
 };
 
 export type TranslationKey = keyof typeof en;
