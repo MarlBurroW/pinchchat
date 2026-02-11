@@ -31,7 +31,8 @@
 ## Item #5
 - **Date:** 2026-02-11
 - **Priority:** high
-- **Status:** pending
+- **Status:** done
+- **Completed:** 2026-02-11 — commit `9b3aed4`
 - **Description:** Ajouter un sélecteur de langue dans l'UI
   - Un petit toggle/dropdown dans le header ou le login screen pour choisir la langue (EN/FR)
   - Stocker le choix en localStorage (priorité sur `VITE_LOCALE` et le locale du navigateur)
