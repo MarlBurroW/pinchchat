@@ -1,5 +1,32 @@
 # FEEDBACK.md — PinchChat Feedback Queue
 
+## Item #13
+- **Date:** 2026-02-11
+- **Priority:** high
+- **Status:** done
+- **Completed:** 2026-02-11 — commit `d118498`
+- **Description:** GitHub Pages landing page — layout & design improvements
+  - **Démo en hero** : La démo animée doit être EN HAUT de la page, dans le hero, bien en évidence. Pas en bas. C'est la première chose que les visiteurs doivent voir.
+  - **Features layout** : Les feature cards en mosaïque/grid c'est trop classique. Trouver un layout plus original — par exemple : timeline verticale, sections alternées gauche/droite avec illustrations, ou scroll-based reveal. Pas de grid 3x3 basique.
+
+## Item #14
+- **Date:** 2026-02-11
+- **Priority:** high
+- **Status:** pending
+- **Description:** Progress bars plus sobres dans l'app
+  - Les barres de tokens dans la sidebar et le header sont trop disparates : gradient cyan→violet, orange quand >80%, rouge quand >95%. C'est pas cohérent.
+  - Adopter un style plus sobre et uniforme : une seule couleur douce (ex: un cyan/bleu soft), qui s'intensifie subtilement quand ça se remplit. Pas de changement de couleur radical.
+  - Garder ça discret et élégant, pas flashy.
+
+## Item #15
+- **Date:** 2026-02-11
+- **Priority:** medium
+- **Status:** pending
+- **Description:** Ajouter des icônes/emojis sur les tool call badges dans l'app (comme sur la démo de la landing page)
+  - Sur la landing page les badges tool calls ont des petits emojis (🔍 pour search, ⚡ pour exec, etc.) — c'est sympa et aide à identifier visuellement le type de tool
+  - Reproduire ça dans la vraie app : ajouter une petite icône/emoji devant le nom du tool dans chaque badge
+  - Exemples : 🔍 web_search, ⚡ exec, 📖 read, ✏️ write/edit, 🌐 browser, 🖼️ image, 🧠 memory, ⏰ cron, 🚀 sessions_spawn, etc.
+
 ## Item #12
 - **Date:** 2026-02-11
 - **Priority:** high
