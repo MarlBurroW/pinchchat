@@ -159,6 +159,52 @@ export const localeLabels: Record<string, string> = {
 
 > **Tip:** TypeScript enforces that your new locale object has the same keys as `en` — missing translations won't compile.
 
+## ❓ Troubleshooting
+
+### Connection fails / "WebSocket error"
+
+- Make sure your OpenClaw gateway is running and reachable from the browser
+- Check the gateway URL format: `ws://host:18789` (or `wss://` if behind TLS)
+- If PinchChat is served over HTTPS, the gateway **must** also use `wss://` — browsers block mixed content
+- Verify the gateway token is correct (copy-paste from your OpenClaw config)
+
+### Blank screen after login
+
+- Open your browser's developer console (F12) and check for errors
+- Ensure the gateway is running a compatible version of OpenClaw (v0.24+)
+- Try clearing `localStorage` (Application tab → Storage → Clear site data) and logging in again
+
+### Messages don't appear / sessions empty
+
+- The WebSocket may have disconnected silently — check the connection indicator in the header
+- If the gateway was restarted, PinchChat reconnects automatically, but you may need to refresh once
+- Verify the token has access to the sessions you expect
+
+### Docker: "port already in use"
+
+```bash
+# Check what's using port 3000
+lsof -i :3000
+# Use a different port
+docker run -p 8080:80 ghcr.io/marlburrow/pinchchat:latest
+```
+
+### Images not displaying
+
+- Inline images require the gateway to send media as base64 data URLs or accessible HTTP URLs
+- If images show as broken, the gateway may be behind a reverse proxy that strips large payloads — check proxy buffer settings
+
+### Build errors from source
+
+```bash
+# Ensure Node.js 18+
+node --version
+# Clean install
+rm -rf node_modules package-lock.json
+npm install
+npm run build
+```
+
 ## 🛠 Tech Stack
 
 - [React](https://react.dev/) 19
