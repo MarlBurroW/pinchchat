@@ -41,6 +41,7 @@ export function useGateway() {
   useEffect(() => { activeSessionRef.current = activeSession; }, [activeSession]);
   const currentRunIdRef = useRef<string | null>(null);
   const [activeSessions, setActiveSessions] = useState<Set<string>>(new Set());
+  const [unreadSessions, setUnreadSessions] = useState<Set<string>>(new Set());
 
   const handleAgentEvent = useCallback((payload: JsonPayload) => {
     if (payload?.stream !== 'tool') return;
@@ -241,7 +242,18 @@ export function useGateway() {
         }
       }
 
-      if (evtSession !== activeSessionRef.current) return;
+      if (evtSession !== activeSessionRef.current) {
+        // Mark non-active sessions as unread when they receive a final message
+        if (state === 'final' && evtSession) {
+          setUnreadSessions(prev => {
+            if (prev.has(evtSession)) return prev;
+            const next = new Set(prev);
+            next.add(evtSession);
+            return next;
+          });
+        }
+        return;
+      }
 
       if (state === 'delta') {
         const text = extractText(message);
@@ -358,6 +370,12 @@ export function useGateway() {
     setActiveSession(key);
     activeSessionRef.current = key;
     setMessages([]);
+    setUnreadSessions(prev => {
+      if (!prev.has(key)) return prev;
+      const next = new Set(prev);
+      next.delete(key);
+      return next;
+    });
     loadHistory(key);
   }, [loadHistory]);
 
@@ -388,6 +406,7 @@ export function useGateway() {
   const enrichedSessions = sessions.map(s => ({
     ...s,
     isActive: activeSessions.has(s.key),
+    hasUnread: unreadSessions.has(s.key),
   }));
 
   return {

@@ -147,6 +147,9 @@ export function Sidebar({ sessions, activeSession, onSwitch, open, onClose }: Pr
                   {s.isActive && (
                     <span className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-violet-400 shadow-[0_0_8px_rgba(168,85,247,0.7)] animate-pulse" />
                   )}
+                  {s.hasUnread && !isActive && (
+                    <span className="absolute -top-0.5 -left-0.5 h-2 w-2 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.7)]" />
+                  )}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1">
