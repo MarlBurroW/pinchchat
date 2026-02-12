@@ -362,3 +362,15 @@
   - Check if autoFormatText() is interfering with markdown syntax
   - Verify that streaming → final transition properly re-renders with markdown
   - Test with a long multi-section response to reproduce
+
+## Item #36
+- **Date:** 2026-02-12
+- **Priority:** medium
+- **Status:** in-progress
+- **Description:** Prettier scrollbar in the text input field (ChatInput textarea)
+- **Details:**
+  - On macOS the default scrollbar in the textarea looks ugly
+  - Style it with custom CSS (thin, dark theme matching the UI — similar to the chat scroll area)
+  - Use webkit-scrollbar styles + scrollbar-width/scrollbar-color for Firefox
+  - Keep it subtle: thin track, small thumb with rounded corners, matching the zinc/cyan theme
+  - Reported by Josh (external user on macOS)
