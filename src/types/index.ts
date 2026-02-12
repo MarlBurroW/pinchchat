@@ -6,6 +6,7 @@ export interface ChatMessage {
   blocks: MessageBlock[];
   isStreaming?: boolean;
   runId?: string;
+  isSystemEvent?: boolean;
 }
 
 export type MessageBlock =

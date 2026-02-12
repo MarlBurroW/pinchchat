@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { GatewayClient, type JsonPayload } from '../lib/gateway';
 import { genIdempotencyKey } from '../lib/utils';
 import { getStoredCredentials, storeCredentials, clearCredentials } from '../lib/credentials';
+import { isSystemEvent } from '../lib/systemEvent';
 import type { ChatMessage, MessageBlock, ConnectionStatus, Session } from '../types';
 
 interface ChatPayloadMessage {
@@ -152,12 +153,14 @@ export function useGateway() {
             };
           }
 
+          const textContent = blocks.filter((b): b is Extract<MessageBlock, { type: 'text' }> => b.type === 'text').map(b => b.text).join('');
           return {
             id: m.id || `hist-${i}`,
             role,
-            content: blocks.filter((b): b is Extract<MessageBlock, { type: 'text' }> => b.type === 'text').map(b => b.text).join(''),
+            content: textContent,
             timestamp: m.timestamp || Date.now(),
             blocks,
+            isSystemEvent: role === 'user' && isSystemEvent(textContent),
           };
         });
         const merged: ChatMessage[] = [];

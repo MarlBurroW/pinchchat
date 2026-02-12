@@ -10,7 +10,7 @@ import { CodeBlock } from './CodeBlock';
 import { ToolCall } from './ToolCall';
 import { ImageBlock } from './ImageBlock';
 import { buildImageSrc } from '../lib/image';
-import { Bot, User, Wrench, Copy, Check, RefreshCw } from 'lucide-react';
+import { Bot, User, Wrench, Copy, Check, RefreshCw, Zap } from 'lucide-react';
 import { t, getLocale } from '../lib/i18n';
 import { useLocale } from '../hooks/useLocale';
 // ChevronDown, ChevronRight, Wrench still used by InternalOnlyMessage
@@ -244,9 +244,35 @@ function getPlainText(message: ChatMessageType): string {
   return message.content;
 }
 
+/** System event displayed as a subtle inline notification */
+function SystemEventMessage({ message }: { message: ChatMessageType }) {
+  const text = message.content || getTextBlocks(message.blocks).map(b => (b as Extract<MessageBlock, { type: 'text' }>).text).join(' ');
+  // Trim leading brackets like [cron:xxx] or [EVENT] for cleaner display
+  const display = text.replace(/^\[.*?\]\s*/, '').trim() || text.trim();
+  const label = text.match(/^\[([^\]]+)\]/)?.[1] || 'system';
+
+  return (
+    <div className="animate-fade-in flex items-center justify-center gap-2 px-4 py-1.5 my-0.5">
+      <div className="flex items-center gap-1.5 max-w-[85%] rounded-full px-3 py-1 bg-zinc-800/30 border border-white/5">
+        <Zap className="h-3 w-3 text-zinc-500 shrink-0" />
+        <span className="text-[11px] font-medium text-zinc-500 shrink-0">{label}</span>
+        <span className="text-[11px] text-zinc-500 truncate">{display}</span>
+        {message.timestamp && (
+          <span className="text-[10px] text-zinc-600 shrink-0 ml-1">{formatTimestamp(message.timestamp)}</span>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export function ChatMessageComponent({ message, onRetry }: { message: ChatMessageType; onRetry?: (text: string) => void }) {
   useLocale(); // re-render on locale change
   const isUser = message.role === 'user';
+
+  // System events render as subtle inline notifications
+  if (message.isSystemEvent) {
+    return <SystemEventMessage message={message} />;
+  }
 
   // Assistant message with no text content — only tool calls / thinking
   if (!isUser && message.blocks.length > 0) {
