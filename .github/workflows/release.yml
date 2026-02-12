@@ -60,10 +60,10 @@ jobs:
           context: .
           push: true
           tags: |
-            ghcr.io/${{ github.repository }}:latest
-            ghcr.io/${{ github.repository }}:${{ steps.version.outputs.tag }}
-            ghcr.io/${{ github.repository }}:${{ steps.version.outputs.minor }}
-            ghcr.io/${{ github.repository }}:${{ steps.version.outputs.major }}
+            ghcr.io/marlburrow/pinchchat:latest
+            ghcr.io/marlburrow/pinchchat:${{ steps.version.outputs.tag }}
+            ghcr.io/marlburrow/pinchchat:${{ steps.version.outputs.minor }}
+            ghcr.io/marlburrow/pinchchat:${{ steps.version.outputs.major }}
           labels: |
             org.opencontainers.image.version=${{ steps.version.outputs.version }}
 

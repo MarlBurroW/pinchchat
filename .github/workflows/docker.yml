@@ -27,7 +27,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/${{ github.repository }}
+          images: ghcr.io/marlburrow/pinchchat
           tags: |
             type=raw,value=edge
             type=sha,prefix=
