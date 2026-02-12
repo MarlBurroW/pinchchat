@@ -214,7 +214,7 @@ export function ChatInput({ onSend, onAbort, isGenerating, disabled, sessionKey 
 
   return (
     <div
-      className="border-t border-white/8 bg-[#1a1a20]/60 backdrop-blur-xl p-4"
+      className="border-t border-white/8 bg-[var(--pc-bg-input)]/60 backdrop-blur-xl p-4"
       role="form"
       aria-label={t('chat.inputLabel')}
       onDragOver={handleDragOver}
@@ -222,7 +222,7 @@ export function ChatInput({ onSend, onAbort, isGenerating, disabled, sessionKey 
       onDrop={handleDrop}
     >
       <div className="max-w-4xl mx-auto">
-        <div className={`rounded-3xl border bg-[#232329]/40 p-3 shadow-[0_0_0_1px_rgba(255,255,255,0.03)] transition-colors ${isDragOver ? 'border-cyan-400/40 bg-cyan-400/5' : 'border-white/8'}`}>
+        <div className={`rounded-3xl border bg-[var(--pc-bg-surface)]/40 p-3 shadow-[0_0_0_1px_rgba(255,255,255,0.03)] transition-colors ${isDragOver ? 'border-cyan-400/40 bg-cyan-400/5' : 'border-white/8'}`}>
           {/* File previews */}
           {files.length > 0 && (
             <div className="flex flex-wrap gap-2 mb-3 px-1">

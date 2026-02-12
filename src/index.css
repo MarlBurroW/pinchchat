@@ -1,9 +1,34 @@
 @import "tailwindcss";
 @import "highlight.js/styles/base16/material-palenight.min.css";
 
+:root {
+  --pc-bg-base: #1e1e24;
+  --pc-bg-surface: #232329;
+  --pc-bg-elevated: #27272a;
+  --pc-bg-input: #1a1a20;
+  --pc-bg-sidebar: rgba(30,30,36,0.95);
+  --pc-bg-code: #1a1a20;
+  --pc-border: rgba(255,255,255,0.08);
+  --pc-border-strong: rgba(255,255,255,0.1);
+  --pc-text-primary: #d4d4d8;
+  --pc-text-secondary: #a1a1aa;
+  --pc-text-muted: #71717a;
+  --pc-text-faint: #52525b;
+  --pc-scrollbar-thumb: #52525b;
+  --pc-scrollbar-track: #27272a;
+  --pc-scrollbar-thumb-hover: #71717a;
+  --pc-accent: #22d3ee;
+  --pc-accent-light: #67e8f9;
+  --pc-accent-dim: rgba(34,211,238,0.3);
+  --pc-accent-glow: rgba(34,211,238,0.1);
+  --pc-accent-rgb: 34,211,238;
+  --pc-user-bubble: rgba(34,211,238,0.06);
+  --pc-user-border: rgba(34,211,238,0.15);
+}
+
 * {
   scrollbar-width: thin;
-  scrollbar-color: #52525b #27272a;
+  scrollbar-color: var(--pc-scrollbar-thumb) var(--pc-scrollbar-track);
 }
 
 /* WebKit scrollbar styling (Chrome, Safari, Edge) */
@@ -17,12 +42,12 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #52525b;
+  background: var(--pc-scrollbar-thumb);
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #71717a;
+  background: var(--pc-scrollbar-thumb-hover);
 }
 
 /* Textarea-specific: even thinner scrollbar, no horizontal scroll */
@@ -53,8 +78,8 @@ textarea {
 
 html, body {
   margin: 0;
-  background: #1e1e24;
-  color: #d4d4d8;
+  background: var(--pc-bg-base);
+  color: var(--pc-text-primary);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   overflow-x: hidden;
   max-width: 100vw;
@@ -92,7 +117,7 @@ html, body {
 
 /* Markdown styles */
 .markdown-body pre {
-  background: #1a1a20 !important;
+  background: var(--pc-bg-code) !important;
   border: 1px solid rgba(255,255,255,0.06);
   border-radius: 12px;
   padding: 16px;
@@ -119,14 +144,14 @@ html, body {
 
 /* Override highlight.js theme bg to match */
 .hljs {
-  background: #1a1a20 !important;
+  background: var(--pc-bg-code) !important;
 }
 
 .markdown-body p { margin: 4px 0; }
 .markdown-body ul, .markdown-body ol { margin: 4px 0; padding-left: 20px; }
 .markdown-body blockquote { border-left: 3px solid rgba(34,211,238,0.4); padding-left: 12px; margin: 8px 0; opacity: 0.8; }
 .markdown-body h1, .markdown-body h2, .markdown-body h3 { margin: 12px 0 4px; }
-.markdown-body a { color: #67e8f9; text-decoration: underline; }
+.markdown-body a { color: var(--pc-accent-light); text-decoration: underline; }
 .markdown-body table { border-collapse: collapse; margin: 8px 0; display: block; overflow-x: auto; max-width: 100%; }
 .markdown-body th, .markdown-body td { border: 1px solid rgba(255,255,255,0.08); padding: 6px 12px; }
 .markdown-body th { background: rgba(255,255,255,0.04); }

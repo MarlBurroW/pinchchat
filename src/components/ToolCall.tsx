@@ -280,7 +280,7 @@ export function ToolCall({ name, input, result }: { name: string; input?: Record
               <div className="group/tc-block relative">
                 <HighlightedPre
                   text={inputStr}
-                  className="text-xs bg-[#1a1a20]/60 border border-white/5 p-2.5 rounded-xl overflow-x-auto text-zinc-300 font-mono"
+                  className="text-xs bg-[var(--pc-bg-input)]/60 border border-white/5 p-2.5 rounded-xl overflow-x-auto text-zinc-300 font-mono"
                   wrap={wrap}
                 />
                 <WrapToggle wrap={wrap} onToggle={() => setWrap(!wrap)} />
@@ -299,7 +299,7 @@ export function ToolCall({ name, input, result }: { name: string; input?: Record
                       <div className="group/tc-block relative">
                         <HighlightedPre
                           text={imageData.remaining}
-                          className="text-xs bg-[#1a1a20]/60 border border-white/5 p-2.5 rounded-xl overflow-x-auto text-zinc-300 font-mono mb-2"
+                          className="text-xs bg-[var(--pc-bg-input)]/60 border border-white/5 p-2.5 rounded-xl overflow-x-auto text-zinc-300 font-mono mb-2"
                           wrap={wrap}
                         />
                         <WrapToggle wrap={wrap} onToggle={() => setWrap(!wrap)} />
@@ -312,7 +312,7 @@ export function ToolCall({ name, input, result }: { name: string; input?: Record
                   <div className="group/tc-block relative">
                     <HighlightedPre
                       text={result}
-                      className="text-xs bg-[#1a1a20]/60 border border-white/5 p-2.5 rounded-xl overflow-x-auto text-zinc-300 max-h-64 overflow-y-auto font-mono"
+                      className="text-xs bg-[var(--pc-bg-input)]/60 border border-white/5 p-2.5 rounded-xl overflow-x-auto text-zinc-300 max-h-64 overflow-y-auto font-mono"
                       wrap={wrap}
                     />
                     <WrapToggle wrap={wrap} onToggle={() => setWrap(!wrap)} />

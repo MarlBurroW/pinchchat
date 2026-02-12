@@ -142,7 +142,7 @@ export function Sidebar({ sessions, activeSession, onSwitch, onDelete, open, onC
   return (
     <>
       {open && <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden" onClick={onClose} />}
-      <aside role="navigation" aria-label="Sessions" className={`fixed lg:relative top-0 left-0 h-full bg-[#1e1e24]/95 border-r border-white/8 z-50 transform ${dragging ? '' : 'transition-transform'} lg:translate-x-0 ${open ? 'translate-x-0' : '-translate-x-full'} flex flex-col backdrop-blur-xl`} style={{ width: `${width}px` }}>
+      <aside role="navigation" aria-label="Sessions" className={`fixed lg:relative top-0 left-0 h-full bg-[var(--pc-bg-base)]/95 border-r border-white/8 z-50 transform ${dragging ? '' : 'transition-transform'} lg:translate-x-0 ${open ? 'translate-x-0' : '-translate-x-full'} flex flex-col backdrop-blur-xl`} style={{ width: `${width}px` }}>
         <div className="h-14 flex items-center justify-between px-4 border-b border-white/8">
           <div className="flex items-center gap-2">
             <div className="relative">
@@ -337,7 +337,7 @@ export function Sidebar({ sessions, activeSession, onSwitch, onDelete, open, onC
       {confirmDelete && (
         <>
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[70]" onClick={() => setConfirmDelete(null)} />
-          <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[80] w-72 bg-[#1e1e24] border border-white/10 rounded-2xl p-5 shadow-2xl">
+          <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[80] w-72 bg-[var(--pc-bg-base)] border border-white/10 rounded-2xl p-5 shadow-2xl">
             <p className="text-sm text-zinc-300 mb-4">{t('sidebar.deleteConfirm')}</p>
             <div className="flex gap-2 justify-end">
               <button

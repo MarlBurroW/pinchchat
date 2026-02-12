@@ -37,7 +37,7 @@ export function LoginScreen({ onConnect, error, isConnecting }: Props) {
   };
 
   return (
-    <div className="h-dvh flex items-center justify-center bg-[#1e1e24] text-zinc-300 bg-[radial-gradient(ellipse_at_top,rgba(255,255,255,0.02),transparent_50%),radial-gradient(ellipse_at_bottom_right,rgba(99,102,241,0.04),transparent_50%)]">
+    <div className="h-dvh flex items-center justify-center bg-[var(--pc-bg-base)] text-zinc-300 bg-[radial-gradient(ellipse_at_top,rgba(255,255,255,0.02),transparent_50%),radial-gradient(ellipse_at_bottom_right,rgba(99,102,241,0.04),transparent_50%)]">
       <div className="w-full max-w-md mx-4">
         {/* Logo */}
         <div className="flex flex-col items-center gap-3 mb-8">
@@ -50,7 +50,7 @@ export function LoginScreen({ onConnect, error, isConnecting }: Props) {
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="rounded-2xl border border-white/8 bg-[#232329]/80 backdrop-blur-xl p-6 space-y-5 shadow-2xl shadow-black/30">
+        <form onSubmit={handleSubmit} className="rounded-2xl border border-white/8 bg-[var(--pc-bg-surface)]/80 backdrop-blur-xl p-6 space-y-5 shadow-2xl shadow-black/30">
           <div className="space-y-2">
             <label htmlFor="gateway-url" className="block text-xs font-medium text-zinc-400 uppercase tracking-wider">
               {t('login.gatewayUrl')}

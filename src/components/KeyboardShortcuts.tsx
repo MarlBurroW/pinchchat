@@ -56,7 +56,7 @@ export function KeyboardShortcuts({ open, onClose }: Props) {
 
       {/* Modal */}
       <div
-        className="relative w-full max-w-md mx-4 rounded-3xl border border-white/8 bg-[#1e1e24]/95 backdrop-blur-xl shadow-2xl animate-fade-in"
+        className="relative w-full max-w-md mx-4 rounded-3xl border border-white/8 bg-[var(--pc-bg-base)]/95 backdrop-blur-xl shadow-2xl animate-fade-in"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}

@@ -102,6 +102,14 @@ const en = {
 
   // Export
   'header.export': 'Export conversation as Markdown',
+
+  // Theme
+  'theme.title': 'Theme',
+  'theme.mode': 'Mode',
+  'theme.accent': 'Accent',
+  'theme.dark': 'Dark',
+  'theme.light': 'Light',
+  'theme.oled': 'OLED',
 } as const;
 
 const fr: Record<keyof typeof en, string> = {
@@ -187,6 +195,13 @@ const fr: Record<keyof typeof en, string> = {
   'shortcuts.generalSection': 'Général',
 
   'header.export': 'Exporter la conversation en Markdown',
+
+  'theme.title': 'Thème',
+  'theme.mode': 'Mode',
+  'theme.accent': 'Accent',
+  'theme.dark': 'Sombre',
+  'theme.light': 'Clair',
+  'theme.oled': 'OLED',
 };
 
 export type TranslationKey = keyof typeof en;

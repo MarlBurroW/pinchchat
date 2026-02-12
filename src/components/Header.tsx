@@ -3,6 +3,7 @@ import { Menu, Sparkles, LogOut, Volume2, VolumeOff, Cpu, Bot, Download } from '
 import type { ConnectionStatus, Session, ChatMessage } from '../types';
 import { useT } from '../hooks/useLocale';
 import { LanguageSelector } from './LanguageSelector';
+import { ThemeSwitcher } from './ThemeSwitcher';
 import { sessionDisplayName } from '../lib/sessionName';
 import { messagesToMarkdown, downloadFile } from '../lib/exportChat';
 
@@ -32,7 +33,7 @@ export function Header({ status, sessionKey, onToggleSidebar, activeSessionData,
 
   return (
     <>
-    <header className="h-14 border-b border-white/8 bg-[#232329]/90 backdrop-blur-xl flex items-center px-4 gap-3 shrink-0" role="banner">
+    <header className="h-14 border-b border-white/8 bg-[var(--pc-bg-surface)]/90 backdrop-blur-xl flex items-center px-4 gap-3 shrink-0" role="banner">
       <button onClick={onToggleSidebar} aria-label={t('header.toggleSidebar')} className="lg:hidden p-2 rounded-2xl hover:bg-white/5 text-zinc-400 transition-colors">
         <Menu size={20} />
       </button>
@@ -76,6 +77,7 @@ export function Header({ status, sessionKey, onToggleSidebar, activeSessionData,
             <Download size={16} />
           </button>
         )}
+        <ThemeSwitcher />
         <LanguageSelector />
         {status === 'connected' ? (
           <div className="flex items-center gap-2 rounded-2xl border border-white/8 bg-zinc-800/30 px-3 py-1.5">
@@ -113,7 +115,7 @@ export function Header({ status, sessionKey, onToggleSidebar, activeSessionData,
         const opacity = Math.max(0.35, Math.min(1, pct / 100));
         const barStyle = { width: `${pct}%`, backgroundColor: `rgba(56, 189, 248, ${opacity})` };
         return (
-          <div className="px-4 py-1.5 bg-[#232329]/60 border-b border-white/8 flex items-center gap-3">
+          <div className="px-4 py-1.5 bg-[var(--pc-bg-surface)]/60 border-b border-white/8 flex items-center gap-3">
             {activeSessionData?.model && (
               <span className="inline-flex items-center gap-1 text-[10px] text-zinc-500 shrink-0" title={`Model: ${activeSessionData.model}${activeSessionData.agentId ? ` · Agent: ${activeSessionData.agentId}` : ''}`}>
                 <Cpu className="h-2.5 w-2.5" />

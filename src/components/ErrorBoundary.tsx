@@ -40,7 +40,7 @@ export class ErrorBoundary extends Component<Props, State> {
       if (this.props.fallback) return this.props.fallback;
 
       return (
-        <div className="h-dvh flex items-center justify-center bg-[#1e1e24] text-zinc-300 p-6">
+        <div className="h-dvh flex items-center justify-center bg-[var(--pc-bg-base)] text-zinc-300 p-6">
           <div className="max-w-md w-full space-y-4 text-center">
             <div className="text-4xl">💥</div>
             <h1 className="text-xl font-semibold text-zinc-100">
