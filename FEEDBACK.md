@@ -479,3 +479,14 @@
   - Could use a lighter background (slightly brighter than assistant messages) or a colored left border
   - Keep it subtle but clearly distinguishable
   - Test against the zinc dark theme to make sure it's readable for keratoconus (no harsh contrast)
+
+## Item #45
+- **Date:** 2026-02-12
+- **Priority:** high
+- **Status:** pending
+- **Description:** Display the agent's avatar when set in OpenClaw config
+  - OpenClaw gateway can provide an avatar URL for the agent (configured in openclaw.json)
+  - PinchChat should display this avatar next to assistant messages instead of the default Bot icon
+  - Check the gateway WebSocket session/handshake data for avatar info
+  - Fallback to the current default icon if no avatar is configured
+  - Should also appear in the header next to the agent name

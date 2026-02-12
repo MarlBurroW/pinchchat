@@ -171,12 +171,19 @@ export function useGateway() {
           }
 
           const textContent = blocks.filter((b): b is Extract<MessageBlock, { type: 'text' }> => b.type === 'text').map(b => b.text).join('');
+          // Capture raw metadata (exclude heavy fields already parsed)
+          const metadata: Record<string, unknown> = {};
+          for (const [k, v] of Object.entries(m)) {
+            if (['content', 'blocks'].includes(k)) continue;
+            metadata[k] = v;
+          }
           return {
             id: m.id || `hist-${i}`,
             role,
             content: textContent,
             timestamp: m.timestamp || Date.now(),
             blocks,
+            metadata,
             isSystemEvent: role === 'user' && isSystemEvent(textContent),
           };
         });

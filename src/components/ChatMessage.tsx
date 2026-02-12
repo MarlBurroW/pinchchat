@@ -10,7 +10,7 @@ import { CodeBlock } from './CodeBlock';
 import { ToolCall } from './ToolCall';
 import { ImageBlock } from './ImageBlock';
 import { buildImageSrc } from '../lib/image';
-import { Bot, User, Wrench, Copy, Check, RefreshCw, Zap } from 'lucide-react';
+import { Bot, User, Wrench, Copy, Check, RefreshCw, Zap, Info } from 'lucide-react';
 import { t, getLocale } from '../lib/i18n';
 import { useLocale } from '../hooks/useLocale';
 // ChevronDown, ChevronRight, Wrench still used by InternalOnlyMessage
@@ -240,6 +240,34 @@ function CopyButton({ text }: { text: string }) {
   );
 }
 
+function MetadataViewer({ metadata }: { metadata?: Record<string, unknown> }) {
+  const [open, setOpen] = useState(false);
+  if (!metadata || Object.keys(metadata).length === 0) return null;
+
+  return (
+    <div className="relative inline-block">
+      <button
+        onClick={() => setOpen(o => !o)}
+        className="h-7 w-7 rounded-lg border border-white/8 bg-zinc-800/80 backdrop-blur-sm flex items-center justify-center text-zinc-400 hover:text-cyan-300 hover:border-cyan-400/30 transition-all opacity-0 group-hover:opacity-100"
+        title={t('message.metadata')}
+        aria-label={t('message.metadata')}
+      >
+        <Info size={13} />
+      </button>
+      {open && (
+        <div className="absolute bottom-9 left-0 z-50 w-72 max-h-64 overflow-auto rounded-xl border border-white/10 bg-zinc-900/95 backdrop-blur-md shadow-xl p-3 text-[11px] text-zinc-400 font-mono leading-relaxed custom-scrollbar">
+          {Object.entries(metadata).map(([k, v]) => (
+            <div key={k} className="flex gap-2 py-0.5">
+              <span className="text-cyan-400/70 shrink-0">{k}:</span>
+              <span className="text-zinc-300 break-all">{typeof v === 'object' ? JSON.stringify(v) : String(v)}</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 /** Extract plain text from message blocks for clipboard copy */
 function getPlainText(message: ChatMessageType): string {
   if (message.blocks.length > 0) {
@@ -305,10 +333,13 @@ export function ChatMessageComponent({ message, onRetry }: { message: ChatMessag
             ? 'bg-gradient-to-b from-cyan-800/40 to-cyan-900/25 text-zinc-100 border border-cyan-400/30'
             : 'bg-zinc-800/40 text-zinc-300 border border-white/8 shadow-[0_0_0_1px_rgba(255,255,255,0.03)]'
         }`}>
-          {/* Copy button (assistant messages only) */}
+          {/* Action buttons */}
           {!isUser && !message.isStreaming && getPlainText(message).trim() && (
             <CopyButton text={getPlainText(message)} />
           )}
+          <div className={`absolute top-2 ${isUser ? 'left-2' : 'right-10'} flex gap-1 opacity-0 group-hover:opacity-100 transition-all`}>
+            <MetadataViewer metadata={message.metadata} />
+          </div>
           {/* Retry button (user messages only) */}
           {isUser && onRetry && (
             <button

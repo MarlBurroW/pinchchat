@@ -7,6 +7,7 @@ export interface ChatMessage {
   isStreaming?: boolean;
   runId?: string;
   isSystemEvent?: boolean;
+  metadata?: Record<string, unknown>;
 }
 
 export type MessageBlock =
