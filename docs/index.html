@@ -175,8 +175,9 @@
       transition: background 0.15s;
     }
     .demo-session-active { background: rgba(34,211,238,0.08); }
-    .demo-session-name { font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 0.3rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .demo-session-name { font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 0.3rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; align-items: center; gap: 0.35rem; }
     .demo-session-active .demo-session-name { color: var(--text-primary); }
+    .demo-session-icon { font-size: 0.7rem; opacity: 0.6; flex-shrink: 0; }
     .demo-token-bar { height: 3px; background: rgba(255,255,255,0.06); border-radius: 2px; overflow: hidden; }
     .demo-token-fill { height: 100%; background: var(--accent-cyan); border-radius: 2px; transition: width 1s ease; }
     .demo-token-low { background: #4ade80; }
@@ -200,18 +201,46 @@
       border-radius: 0.5rem; color: var(--bg-primary); font-size: 1rem; cursor: default;
     }
 
-    .demo-msg { display: flex; gap: 0.6rem; animation: msgIn 0.3s ease; }
+    .demo-msg { display: flex; gap: 0.6rem; animation: msgIn 0.3s ease; padding: 0.35rem 0; }
+    .demo-msg-user { flex-direction: row-reverse; }
     @keyframes msgIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
     .demo-avatar {
-      width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-      font-size: 0.75rem; flex-shrink: 0; margin-top: 2px;
+      width: 32px; height: 32px; border-radius: 0.75rem; display: flex; align-items: center; justify-content: center;
+      font-size: 0.8rem; flex-shrink: 0; margin-top: 2px;
+      border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.03);
     }
-    .demo-avatar-user { background: rgba(34,211,238,0.15); color: var(--accent-cyan); }
-    .demo-avatar-bot { background: rgba(167,139,250,0.15); color: var(--accent-purple); }
+    .demo-avatar-user { background: rgba(34,211,238,0.08); color: var(--accent-cyan); }
+    .demo-avatar-bot { background: rgba(255,255,255,0.03); color: var(--accent-cyan); }
     .demo-msg-body { flex: 1; min-width: 0; }
-    .demo-msg-role { font-size: 0.7rem; color: var(--text-secondary); margin-bottom: 0.15rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
-    .demo-msg-text { font-size: 0.85rem; line-height: 1.55; color: var(--text-primary); }
-    .demo-msg-text code { background: rgba(255,255,255,0.06); padding: 0.1em 0.35em; border-radius: 3px; font-size: 0.8rem; font-family: 'SF Mono','Fira Code',monospace; }
+    .demo-msg-body-user { text-align: right; }
+    .demo-bubble {
+      display: inline-block; text-align: left;
+      border-radius: 1.25rem; padding: 0.65rem 0.9rem;
+      font-size: 0.82rem; line-height: 1.55; max-width: 100%;
+    }
+    .demo-bubble-user {
+      background: linear-gradient(to bottom, rgba(6,182,212,0.25), rgba(8,145,178,0.15));
+      border: 1px solid rgba(34,211,238,0.3);
+      color: var(--text-primary);
+    }
+    .demo-bubble-bot {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      color: #d4d4d8;
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.02);
+    }
+    .demo-msg-text { font-size: 0.82rem; line-height: 1.55; color: inherit; }
+    .demo-msg-text code { background: rgba(255,255,255,0.06); padding: 0.1em 0.35em; border-radius: 3px; font-size: 0.78rem; font-family: 'SF Mono','Fira Code',monospace; }
+    .demo-date-sep {
+      display: flex; align-items: center; gap: 0.75rem; padding: 0.5rem 0; user-select: none;
+    }
+    .demo-date-sep::before, .demo-date-sep::after {
+      content: ''; flex: 1; height: 1px; background: rgba(255,255,255,0.06);
+    }
+    .demo-date-sep span {
+      font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;
+      color: #71717a;
+    }
 
     .demo-thinking {
       display: inline-flex; align-items: center; gap: 0.4rem;
@@ -563,19 +592,19 @@
             <span>PinchChat</span>
           </div>
           <div class="demo-session demo-session-active">
-            <div class="demo-session-name">🏠 Main Session</div>
+            <div class="demo-session-name"><span class="demo-session-icon">💬</span> Main Session</div>
             <div class="demo-token-bar"><div class="demo-token-fill" style="width:42%"></div></div>
           </div>
           <div class="demo-session">
-            <div class="demo-session-name">⏰ Daily AI Watch</div>
+            <div class="demo-session-name"><span class="demo-session-icon">⏰</span> Daily AI Watch</div>
             <div class="demo-token-bar"><div class="demo-token-fill demo-token-low" style="width:18%"></div></div>
           </div>
           <div class="demo-session">
-            <div class="demo-session-name">🔧 PinchChat Improve</div>
+            <div class="demo-session-name"><svg class="demo-session-icon" style="width:12px;height:12px;display:inline" viewBox="0 0 127.14 96.36" fill="#5865F2"><path d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1A105.25,105.25,0,0,0,126.6,80.22h0C129.24,52.84,122.09,29.11,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,46,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5-12.74,11.44-12.74S96.23,46,96.12,53,91.08,65.69,84.69,65.69Z"/></svg> Discord</div>
             <div class="demo-token-bar"><div class="demo-token-fill" style="width:67%"></div></div>
           </div>
           <div class="demo-session">
-            <div class="demo-session-name">📧 Email Check</div>
+            <div class="demo-session-name"><svg class="demo-session-icon" style="width:12px;height:12px;display:inline" viewBox="0 0 24 24" fill="#26A5E4"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/></svg> Telegram</div>
             <div class="demo-token-bar"><div class="demo-token-fill demo-token-low" style="width:8%"></div></div>
           </div>
         </div>
@@ -826,7 +855,8 @@
     const input = document.getElementById('demo-input-text');
 
     const scenario = [
-      { type: 'input-type', text: 'What\'s the weather in Grenoble and check my latest emails?', delay: 0 },
+      { type: 'date-sep', text: 'Today', delay: 0 },
+      { type: 'input-type', text: 'What\'s the weather in Grenoble and check my latest emails?', delay: 600 },
       { type: 'input-send', delay: 800 },
       { type: 'user-msg', text: 'What\'s the weather in Grenoble and check my latest emails?', delay: 200 },
       { type: 'thinking', delay: 400 },
@@ -840,7 +870,7 @@
       { type: 'reset', delay: 0 },
     ];
 
-    let thinkingEl = null, toolArea = null, currentBotMsg = null;
+    let thinkingEl = null, toolArea = null, currentBotMsg = null, bubbleEl = null;
 
     function scrollDown() { chat.scrollTop = chat.scrollHeight; }
 
@@ -859,11 +889,12 @@
     function createBotMsg() {
       const msg = document.createElement('div');
       msg.className = 'demo-msg';
-      msg.innerHTML = '<div class="demo-avatar demo-avatar-bot">🤖</div><div class="demo-msg-body"><div class="demo-msg-role">Assistant</div></div>';
+      msg.innerHTML = '<div class="demo-avatar demo-avatar-bot">🤖</div><div class="demo-msg-body"><div class="demo-bubble demo-bubble-bot"></div></div>';
       chat.appendChild(msg);
       currentBotMsg = msg.querySelector('.demo-msg-body');
+      bubbleEl = msg.querySelector('.demo-bubble-bot');
       toolArea = document.createElement('div');
-      currentBotMsg.appendChild(toolArea);
+      bubbleEl.appendChild(toolArea);
       scrollDown();
       return currentBotMsg;
     }
@@ -874,12 +905,19 @@
       const next = () => setTimeout(() => runStep(idx + 1), scenario[idx + 1]?.delay || 0);
 
       switch (step.type) {
+        case 'date-sep': {
+          const sep = document.createElement('div');
+          sep.className = 'demo-date-sep';
+          sep.innerHTML = '<span>' + step.text + '</span>';
+          chat.appendChild(sep);
+          scrollDown(); next(); break;
+        }
         case 'input-type': typeText(input, step.text, next); break;
         case 'input-send': input.textContent = ''; next(); break;
         case 'user-msg': {
           const msg = document.createElement('div');
-          msg.className = 'demo-msg';
-          msg.innerHTML = '<div class="demo-avatar demo-avatar-user">👤</div><div class="demo-msg-body"><div class="demo-msg-role">You</div><div class="demo-msg-text"></div></div>';
+          msg.className = 'demo-msg demo-msg-user';
+          msg.innerHTML = '<div class="demo-avatar demo-avatar-user">👤</div><div class="demo-msg-body demo-msg-body-user"><div class="demo-bubble demo-bubble-user"><div class="demo-msg-text"></div></div></div>';
           chat.appendChild(msg);
           msg.querySelector('.demo-msg-text').textContent = step.text;
           scrollDown(); next(); break;
@@ -912,14 +950,14 @@
           const d = document.createElement('div');
           d.className = 'demo-msg-text';
           d.innerHTML = step.html;
-          currentBotMsg.appendChild(d);
+          bubbleEl.appendChild(d);
           scrollDown(); next(); break;
         }
         case 'pause': setTimeout(next, step.delay); break;
         case 'reset':
           setTimeout(() => {
             chat.innerHTML = ''; input.textContent = '';
-            thinkingEl = null; toolArea = null; currentBotMsg = null;
+            thinkingEl = null; toolArea = null; currentBotMsg = null; bubbleEl = null;
             runStep(0);
           }, 500);
           break;
