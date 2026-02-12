@@ -4,6 +4,10 @@ All notable changes to PinchChat are documented here.
 
 Format based on [Keep a Changelog](https://keepachangelog.com/), with [Conventional Commits](https://www.conventionalcommits.org/).
 
+## [1.14.2] — 2026-02-12
+### Fixed
+- Textarea scrollbar only appears when content overflows max-height (no more permanent scrollbar)
+
 ## [1.14.1] — 2026-02-12
 ### Fixed
 - Session deletion now persists across page refreshes via localStorage blacklist — deleted sessions no longer reappear after reload

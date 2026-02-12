@@ -302,7 +302,7 @@ export function ChatMessageComponent({ message, onRetry }: { message: ChatMessag
       <div className={`min-w-0 max-w-[80%] ${isUser ? 'text-right' : ''}`}>
         <div className={`group relative inline-block text-left rounded-3xl px-4 py-3 text-sm leading-relaxed max-w-full overflow-hidden ${
           isUser
-            ? 'bg-gradient-to-b from-cyan-900/20 to-zinc-900/60 text-zinc-200 border border-cyan-400/15'
+            ? 'bg-gradient-to-b from-cyan-800/40 to-cyan-900/25 text-zinc-100 border border-cyan-400/30'
             : 'bg-zinc-800/40 text-zinc-300 border border-white/8 shadow-[0_0_0_1px_rgba(255,255,255,0.03)]'
         }`}>
           {/* Copy button (assistant messages only) */}
