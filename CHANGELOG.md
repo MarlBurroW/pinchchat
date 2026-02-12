@@ -6,6 +6,11 @@ Format based on [Keep a Changelog](https://keepachangelog.com/), with [Conventio
 
 ## [Unreleased]
 
+## [1.8.1] — 2026-02-12
+
+### Fixed
+- **Markdown rendering in long messages** — `autoFormatText` no longer wraps markdown prose in code fences; bold, headings, and bullet lists are now correctly rendered (`4c8faf0`)
+
 ## [1.7.0] — 2026-02-12
 
 ### Added

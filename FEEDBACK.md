@@ -349,7 +349,8 @@
 ## Item #35
 - **Date:** 2026-02-12
 - **Priority:** high
-- **Status:** pending
+- **Status:** done
+- **Completed:** 2026-02-12 — commit `4c8faf0`
 - **Description:** Markdown not rendering in long assistant messages — raw `**bold**` shown
 - **Details:**
   - Reported by Josh (external user) — screenshot shows `**Hypothèse :**` rendered as raw text instead of bold
