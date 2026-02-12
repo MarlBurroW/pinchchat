@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Wifi, Loader2 } from 'lucide-react';
 import type { ConnectionStatus } from '../types';
 import { useT } from '../hooks/useLocale';
@@ -15,28 +15,31 @@ export function ConnectionBanner({ status }: Props) {
   const prevStatus = useRef<ConnectionStatus | null>(null);
   const dismissTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  useEffect(() => {
-    const prev = prevStatus.current;
-    prevStatus.current = status;
-
+  const updateBanner = useCallback((prev: ConnectionStatus | null, current: ConnectionStatus) => {
     if (dismissTimer.current) {
       clearTimeout(dismissTimer.current);
       dismissTimer.current = null;
     }
 
-    if (status === 'disconnected' || status === 'connecting') {
+    if (current === 'disconnected' || current === 'connecting') {
       if (prev === 'connected') {
         setBanner('reconnecting');
       }
-    } else if (status === 'connected' && prev !== null && prev !== 'connected') {
+    } else if (current === 'connected' && prev !== null && prev !== 'connected') {
       setBanner('reconnected');
       dismissTimer.current = setTimeout(() => setBanner('hidden'), 3000);
     }
+  }, []);
+
+  useEffect(() => {
+    const prev = prevStatus.current;
+    prevStatus.current = status;
+    updateBanner(prev, status);
 
     return () => {
       if (dismissTimer.current) clearTimeout(dismissTimer.current);
     };
-  }, [status]);
+  }, [status, updateBanner]);
 
   if (banner === 'hidden') return null;
 

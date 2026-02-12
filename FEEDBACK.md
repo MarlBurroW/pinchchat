@@ -175,3 +175,21 @@
   - GitHub rend nativement les blocs ```mermaid dans les README
   - Utiliser un flowchart ou graph LR/TD montrant : Browser → WebSocket → OpenClaw Gateway → LLM Provider, avec les composants internes (LoginScreen, Chat, Sidebar, Gateway client, etc.)
   - Plus lisible et maintenable que l'ASCII art
+
+## Item #22
+- **Date:** 2026-02-12
+- **Priority:** high
+- **Status:** pending
+- **Description:** CI GitHub Actions en échec — vérifier et réparer en priorité. Le cron doit aussi vérifier l'état de la CI en début de chaque session avant toute autre amélioration. Si la CI est cassée, c'est la priorité #1.
+
+## Item #23
+- **Date:** 2026-02-12
+- **Priority:** medium
+- **Status:** pending
+- **Description:** Icônes par channel/type dans la liste des sessions (sidebar)
+  - Discord → icône Discord
+  - Telegram → icône Telegram
+  - Cron → icône horloge ou engrenage
+  - Webchat → icône chat/bulle
+  - Fallback générique pour les channels non-vanilla (ex: TeamSpeak) → icône par défaut (bulle ou globe)
+  - Utiliser des SVG ou une lib d'icônes (lucide-react, react-icons, etc.)

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback, useState } from 'react';
+import { useEffect, useRef, useCallback, useState, useMemo } from 'react';
 import { ChatMessageComponent } from './ChatMessage';
 import { ChatInput } from './ChatInput';
 import { TypingIndicator } from './TypingIndicator';
@@ -112,6 +112,16 @@ export function Chat({ messages, isGenerating, status, onSend, onAbort }: Props)
     onSend(text, attachments);
   }, [onSend]);
 
+  const visibleMessages = useMemo(() => {
+    const filtered = messages.filter(hasVisibleContent);
+    return filtered.reduce<Array<{ msg: ChatMessage; showSep: boolean }>>((acc, msg) => {
+      const dk = getDateKey(msg.timestamp);
+      const prevDk = acc.length > 0 ? getDateKey(acc[acc.length - 1].msg.timestamp) : '';
+      acc.push({ msg, showSep: dk !== prevDk });
+      return acc;
+    }, []);
+  }, [messages]);
+
   const showTyping = isGenerating && !hasStreamedText(messages);
 
   return (
@@ -130,13 +140,7 @@ export function Chat({ messages, isGenerating, status, onSend, onAbort }: Props)
               <div className="text-sm mt-1 text-zinc-500">{t('chat.welcomeSub')}</div>
             </div>
           )}
-          {(() => {
-            let lastDateKey = '';
-            return messages.filter(hasVisibleContent).map(msg => {
-              const dk = getDateKey(msg.timestamp);
-              const showSep = dk !== lastDateKey;
-              lastDateKey = dk;
-              return (
+          {visibleMessages.map(({ msg, showSep }) => (
                 <div key={msg.id}>
                   {showSep && (
                     <div className="flex items-center gap-3 py-3 px-4 select-none" aria-label={formatDateSeparator(msg.timestamp, t)}>
@@ -147,9 +151,7 @@ export function Chat({ messages, isGenerating, status, onSend, onAbort }: Props)
                   )}
                   <ChatMessageComponent message={msg} onRetry={!isGenerating ? handleSend : undefined} />
                 </div>
-              );
-            });
-          })()}
+          ))}
           {showTyping && <TypingIndicator />}
           <div ref={bottomRef} />
         </div>

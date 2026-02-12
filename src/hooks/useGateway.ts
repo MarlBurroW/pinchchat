@@ -307,6 +307,8 @@ export function useGateway() {
     initRef.current = true;
     const stored = getStoredCredentials();
     if (stored) {
+      // Init on mount — setupClient sets state as part of establishing the connection
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setupClient(stored.url, stored.token);
     } else {
       setAuthenticated(false);
