@@ -1,5 +1,5 @@
-import { useState, useMemo } from 'react';
-import { ChevronRight, ChevronDown } from 'lucide-react';
+import { useState, useCallback, useMemo } from 'react';
+import { ChevronRight, ChevronDown, Check, Copy } from 'lucide-react';
 import hljs from 'highlight.js/lib/common';
 import { useT } from '../hooks/useLocale';
 import { ImageBlock } from './ImageBlock';
@@ -107,6 +107,29 @@ function highlightCode(text: string): string | null {
   } catch {
     return null;
   }
+}
+
+/** Small copy-to-clipboard button for tool call content blocks. */
+function CopyButton({ text }: { text: string }) {
+  const [copied, setCopied] = useState(false);
+  const handleCopy = useCallback(() => {
+    navigator.clipboard.writeText(text).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  }, [text]);
+
+  return (
+    <button
+      onClick={handleCopy}
+      className="absolute top-2 right-2 p-1 rounded-lg bg-zinc-700/60 hover:bg-zinc-600/80 border border-white/10 text-zinc-400 hover:text-zinc-200 opacity-0 group-hover/tc-block:opacity-100 transition-opacity duration-150"
+      title={copied ? 'Copied!' : 'Copy'}
+      aria-label="Copy to clipboard"
+      type="button"
+    >
+      {copied ? <Check className="h-3 w-3 text-green-400" /> : <Copy className="h-3 w-3" />}
+    </button>
+  );
 }
 
 export function HighlightedPre({ text, className }: { text: string; className: string }) {
@@ -225,10 +248,13 @@ export function ToolCall({ name, input, result }: { name: string; input?: Record
           {inputStr && (
             <div>
               <div className={`text-[11px] ${c.text} opacity-70 mb-1 font-medium`}>{t('tool.parameters')}</div>
-              <HighlightedPre
-                text={inputStr}
-                className="text-xs bg-[#1a1a20]/60 border border-white/5 p-2.5 rounded-xl overflow-x-auto text-zinc-300 font-mono"
-              />
+              <div className="group/tc-block relative">
+                <HighlightedPre
+                  text={inputStr}
+                  className="text-xs bg-[#1a1a20]/60 border border-white/5 p-2.5 rounded-xl overflow-x-auto text-zinc-300 font-mono"
+                />
+                <CopyButton text={inputStr} />
+              </div>
             </div>
           )}
           {result && (() => {
@@ -239,18 +265,24 @@ export function ToolCall({ name, input, result }: { name: string; input?: Record
                 {imageData ? (
                   <>
                     {imageData.remaining && (
-                      <HighlightedPre
-                        text={imageData.remaining}
-                        className="text-xs bg-[#1a1a20]/60 border border-white/5 p-2.5 rounded-xl overflow-x-auto text-zinc-300 font-mono mb-2"
-                      />
+                      <div className="group/tc-block relative">
+                        <HighlightedPre
+                          text={imageData.remaining}
+                          className="text-xs bg-[#1a1a20]/60 border border-white/5 p-2.5 rounded-xl overflow-x-auto text-zinc-300 font-mono mb-2"
+                        />
+                        <CopyButton text={imageData.remaining} />
+                      </div>
                     )}
                     <ImageBlock src={imageData.src} alt={`${name} result`} />
                   </>
                 ) : (
-                  <HighlightedPre
-                    text={result}
-                    className="text-xs bg-[#1a1a20]/60 border border-white/5 p-2.5 rounded-xl overflow-x-auto text-zinc-300 max-h-64 overflow-y-auto font-mono"
-                  />
+                  <div className="group/tc-block relative">
+                    <HighlightedPre
+                      text={result}
+                      className="text-xs bg-[#1a1a20]/60 border border-white/5 p-2.5 rounded-xl overflow-x-auto text-zinc-300 max-h-64 overflow-y-auto font-mono"
+                    />
+                    <CopyButton text={result} />
+                  </div>
                 )}
               </div>
             );
