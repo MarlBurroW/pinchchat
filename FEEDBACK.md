@@ -420,7 +420,8 @@
 ## Item #40
 - **Date:** 2026-02-12
 - **Priority:** medium
-- **Status:** pending
+- **Status:** done
+- **Completed:** 2026-02-12 — commit `25e63f8`
 - **Description:** Better thinking/reasoning indicator when content is hidden
 - **Details:**
   - When the gateway streams a thinking block without visible content (thinking=low), PinchChat shows "Thinking..." but nothing happens for a while

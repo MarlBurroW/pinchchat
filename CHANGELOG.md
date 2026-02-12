@@ -4,6 +4,10 @@ All notable changes to PinchChat are documented here.
 
 Format based on [Keep a Changelog](https://keepachangelog.com/), with [Conventional Commits](https://www.conventionalcommits.org/).
 
+## [1.18.0] — 2026-02-12
+### Added
+- Improved thinking/reasoning indicator with elapsed time counter — shows pulsing "Reasoning..." with timer when agent is thinking with hidden content, instead of generic bouncing dots
+
 ## [1.16.0] — 2026-02-12
 ### Added
 - Display agent avatar from OpenClaw identity config — shown in assistant message bubbles and header when configured
