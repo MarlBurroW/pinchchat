@@ -4,6 +4,13 @@ All notable changes to PinchChat are documented here.
 
 Format based on [Keep a Changelog](https://keepachangelog.com/), with [Conventional Commits](https://www.conventionalcommits.org/).
 
+## [1.20.2] — 2026-02-13
+### Fixed
+- Theme switcher now actually works — migrated ~150 hardcoded Tailwind color classes across all 17 components to CSS custom properties
+- All UI elements (backgrounds, text, borders, accents, hover states) now respond to Dark/Light/OLED theme changes in real-time
+- Added theme-aware hover, separator, and scrollbar variables per theme mode
+- Markdown styles (code, blockquotes, tables) now use theme variables instead of hardcoded colors
+
 ## [1.20.0] — 2026-02-12
 ### Added
 - Theme switcher — Dark, Light, and OLED Black modes with 6 configurable accent colors (Cyan, Violet, Emerald, Amber, Rose, Blue)

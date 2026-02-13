@@ -582,7 +582,8 @@
 ## Item #55
 - **Date:** 2026-02-12
 - **Priority:** high
-- **Status:** pending
+- **Status:** done
+- **Completed:** 2026-02-13 — commit `b60c0ce`
 - **Description:** Bug: Theme switcher (v1.20.0) doesn't work — clicking options closes the popup and nothing changes visually
   - Root cause: the ThemeContext and CSS variables ARE being set correctly, but almost all components still use hardcoded Tailwind classes (bg-zinc-800, text-zinc-400, border-white/8, etc.) instead of the CSS variables
   - The Tailwind classes override the CSS variables, so theme changes have zero visual effect
