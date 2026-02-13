@@ -129,7 +129,14 @@ export function useGateway() {
       const sessionList = res?.sessions as Array<Record<string, unknown>> | undefined;
       if (sessionList) {
         const deleted = getDeletedSessions();
-        setSessions(sessionList.filter((s) => !deleted.has((s.key || s.sessionKey) as string)).map((s) => ({
+        // Reconcile: remove blacklisted keys that still exist on the gateway
+        // (e.g. permanent sessions like agent:main:main that can't actually be deleted)
+        const activeKeys = new Set(sessionList.map((s) => (s.key || s.sessionKey) as string));
+        const reconciled = new Set([...deleted].filter((k) => !activeKeys.has(k)));
+        if (reconciled.size !== deleted.size) {
+          localStorage.setItem('pinchchat-deleted-sessions', JSON.stringify([...reconciled]));
+        }
+        setSessions(sessionList.filter((s) => !reconciled.has((s.key || s.sessionKey) as string)).map((s) => ({
           key: (s.key || s.sessionKey) as string,
           label: (s.label || s.key || s.sessionKey) as string,
           messageCount: s.messageCount as number | undefined,
