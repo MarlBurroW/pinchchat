@@ -713,3 +713,9 @@
 - **Status:** done
 - **Completed:** 2026-02-13 — commit `d478eee`, tagged `v1.40.1`
 - **Description:** Cursor desync in textarea STILL present after v1.39.2 fix. The cursor position still gets ahead of where characters actually appear. The previous fix (removing padding/bold from backdrop tokens) was insufficient. Need deeper investigation — likely the HighlightedTextarea backdrop and textarea have mismatched rendering (font metrics, line-height, word-wrap differences, or span wrapping in the backdrop creating different text flow). Consider disabling highlight entirely as test, or ensuring backdrop uses identical character-level rendering with zero extra styling that could affect text width/flow.
+
+## Item #63
+- **Date:** 2026-02-13
+- **Priority:** medium
+- **Status:** open
+- **Description:** Context compaction button — Add a button in the PinchChat UI to trigger OpenClaw's context summarize/compaction. When a session's token usage is high (e.g. near the limit), the user can click to compact the conversation history, summarizing older messages to free up context window space. OpenClaw should expose an API/tool for this. (Feedback from Bardak)

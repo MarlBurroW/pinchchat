@@ -11,17 +11,19 @@ function VersionBadge() {
   const update = useUpdateCheck(__APP_VERSION__);
   if (update.available) {
     return (
-      <a
-        href={update.releaseUrl || '#'}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="ml-1 inline-flex items-center gap-1 text-[9px] text-emerald-400 hover:text-emerald-300 transition-colors"
-        title={`Update available: v${update.latestVersion}`}
-      >
-        <span className="text-pc-text-faint line-through select-all">v{__APP_VERSION__}</span>
-        <ArrowUpCircle size={10} />
-        <span>v{update.latestVersion}</span>
-      </a>
+      <span className="ml-1 inline-flex items-center gap-1.5 text-[9px]">
+        <span className="text-pc-text-faint select-all">v{__APP_VERSION__}</span>
+        <a
+          href={update.releaseUrl || '#'}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-0.5 rounded-full bg-emerald-500/15 px-1.5 py-0.5 text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/25 transition-colors"
+          title={`Update available: v${update.latestVersion}`}
+        >
+          <ArrowUpCircle size={10} />
+          <span>{update.latestVersion} available</span>
+        </a>
+      </span>
     );
   }
   return (
