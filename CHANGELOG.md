@@ -4,6 +4,12 @@ All notable changes to PinchChat are documented here.
 
 Format based on [Keep a Changelog](https://keepachangelog.com/), with [Conventional Commits](https://www.conventionalcommits.org/).
 
+## [1.30.0] — 2026-02-13
+### Added
+- Service worker for PWA support — static assets are cached for instant loads and offline shell
+- App is now installable as a standalone PWA on mobile and desktop (Add to Home Screen)
+- Enhanced manifest with orientation, categories, and complete icon set
+
 ## [1.29.2] — 2026-02-13
 ### Fixed
 - Images now show a pulsing loading skeleton while loading and a graceful error fallback (icon + alt text) when they fail to load
