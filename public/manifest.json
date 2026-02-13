@@ -1,12 +1,24 @@
 {
   "name": "PinchChat",
   "short_name": "PinchChat",
-  "description": "A sleek, dark-themed webchat UI for OpenClaw",
+  "description": "A sleek, dark-themed webchat UI for OpenClaw — monitor sessions, stream responses, and inspect tool calls in real-time.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#1e1e24",
   "theme_color": "#1e1e24",
+  "orientation": "any",
+  "categories": ["developer", "productivity", "utilities"],
   "icons": [
+    {
+      "src": "/favicon-16.png",
+      "sizes": "16x16",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon-32.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
     {
       "src": "/logo-192.png",
       "sizes": "192x192",
