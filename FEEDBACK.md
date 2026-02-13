@@ -554,7 +554,8 @@
 ## Item #52
 - **Date:** 2026-02-12
 - **Priority:** medium
-- **Status:** pending
+- **Status:** done
+- **Completed:** 2026-02-13 — commit `82d2e37`
 - **Description:** Raw JSON viewer — toggle to see raw gateway messages
   - Toggle button to switch between rendered view and raw JSON
   - Show the full gateway message payload as formatted JSON

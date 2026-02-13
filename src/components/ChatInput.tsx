@@ -1,6 +1,11 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
-import { Send, Square, Paperclip, X, FileText } from 'lucide-react';
+import { useState, useRef, useEffect, useCallback, lazy, Suspense } from 'react';
+import { Send, Square, Paperclip, X, FileText, Eye, EyeOff } from 'lucide-react';
 import { useT } from '../hooks/useLocale';
+
+const ReactMarkdown = lazy(() => import('react-markdown'));
+const remarkGfm = import('remark-gfm').then(m => m.default);
+let _remarkGfm: typeof import('remark-gfm').default | null = null;
+remarkGfm.then(p => { _remarkGfm = p; });
 
 interface FileAttachment {
   id: string;
@@ -85,6 +90,7 @@ export function ChatInput({ onSend, onAbort, isGenerating, disabled, sessionKey 
   const [text, setText] = useState('');
   const [files, setFiles] = useState<FileAttachment[]>([]);
   const [isDragOver, setIsDragOver] = useState(false);
+  const [showPreview, setShowPreview] = useState(() => localStorage.getItem('pinchchat-md-preview') === '1');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -248,6 +254,15 @@ export function ChatInput({ onSend, onAbort, isGenerating, disabled, sessionKey 
             </div>
           )}
 
+          {/* Markdown preview */}
+          {showPreview && text.trim() && (
+            <div className="mb-3 px-1 max-h-[200px] overflow-y-auto rounded-2xl border border-pc-border bg-pc-elevated/30 p-3 text-sm text-pc-text prose prose-invert prose-sm max-w-none [&_pre]:bg-pc-elevated [&_pre]:rounded-lg [&_pre]:p-2 [&_code]:text-cyan-300 [&_a]:text-cyan-400">
+              <Suspense fallback={<span className="text-pc-text-muted text-xs">Loading…</span>}>
+                <ReactMarkdown remarkPlugins={_remarkGfm ? [_remarkGfm] : []}>{text}</ReactMarkdown>
+              </Suspense>
+            </div>
+          )}
+
           <div className="flex items-end gap-3">
             {/* File picker button */}
             <button
@@ -258,6 +273,15 @@ export function ChatInput({ onSend, onAbort, isGenerating, disabled, sessionKey 
               aria-label={t('chat.attachFile')}
             >
               <Paperclip size={18} />
+            </button>
+            {/* Markdown preview toggle */}
+            <button
+              onClick={() => setShowPreview(v => { const next = !v; localStorage.setItem('pinchchat-md-preview', next ? '1' : '0'); return next; })}
+              className={`shrink-0 h-11 w-11 rounded-2xl border border-pc-border bg-pc-elevated/30 flex items-center justify-center transition-colors ${showPreview ? 'text-pc-accent-light bg-[var(--pc-accent-glow)]' : 'text-pc-text-secondary hover:text-pc-accent-light hover:bg-[var(--pc-hover)]'}`}
+              title={showPreview ? t('chat.hidePreview') : t('chat.showPreview')}
+              aria-label={showPreview ? t('chat.hidePreview') : t('chat.showPreview')}
+            >
+              {showPreview ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
             <input
               ref={fileInputRef}
