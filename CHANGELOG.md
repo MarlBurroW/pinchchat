@@ -4,6 +4,11 @@ All notable changes to PinchChat are documented here.
 
 Format based on [Keep a Changelog](https://keepachangelog.com/), with [Conventional Commits](https://www.conventionalcommits.org/).
 
+## [1.37.0] — 2026-02-13
+
+### Added
+- Response generation time displayed on assistant messages (e.g. "· 12.3s") — shows how long each response took to generate during the current session
+
 ## [1.36.1] — 2026-02-13
 
 ### Fixed
