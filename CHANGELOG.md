@@ -4,6 +4,11 @@ All notable changes to PinchChat are documented here.
 
 Format based on [Keep a Changelog](https://keepachangelog.com/), with [Conventional Commits](https://www.conventionalcommits.org/).
 
+## [1.31.1] — 2026-02-13
+
+### Fixed
+- Replace remaining hardcoded `text-zinc-*` classes in App.tsx with theme CSS variables for proper light/OLED theme support
+
 ## [1.31.0] — 2026-02-13
 ### Added
 - Unit test infrastructure with Vitest — 27 tests across 3 suites (relativeTime, sessionDisplayName, messagesToMarkdown)
