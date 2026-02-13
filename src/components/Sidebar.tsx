@@ -1,10 +1,33 @@
 import { useState, useMemo, useRef, useEffect, useCallback } from 'react';
-import { X, Sparkles, Search, Pin, Trash2, Columns2, Clock, Bot, MessageSquare, Globe, Zap } from 'lucide-react';
+import { X, Sparkles, Search, Pin, Trash2, Columns2, Clock, Bot, MessageSquare, Globe, Zap, ArrowUpCircle } from 'lucide-react';
 import type { Session } from '../types';
 import { useT } from '../hooks/useLocale';
 import { SessionIcon } from './SessionIcon';
 import { sessionDisplayName } from '../lib/sessionName';
 import { relativeTime } from '../lib/relativeTime';
+import { useUpdateCheck } from '../hooks/useUpdateCheck';
+
+function VersionBadge() {
+  const update = useUpdateCheck(__APP_VERSION__);
+  if (update.available) {
+    return (
+      <a
+        href={update.releaseUrl || '#'}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="ml-1 inline-flex items-center gap-1 text-[9px] text-emerald-400 hover:text-emerald-300 transition-colors"
+        title={`Update available: v${update.latestVersion}`}
+      >
+        <span className="text-pc-text-faint line-through select-all">v{__APP_VERSION__}</span>
+        <ArrowUpCircle size={10} />
+        <span>v{update.latestVersion}</span>
+      </a>
+    );
+  }
+  return (
+    <span className="ml-1 text-[9px] text-pc-text-faint select-all" title={`PinchChat v${__APP_VERSION__}`}>v{__APP_VERSION__}</span>
+  );
+}
 
 const PINNED_KEY = 'pinchchat-pinned-sessions';
 const WIDTH_KEY = 'pinchchat-sidebar-width';
@@ -490,7 +513,7 @@ export function Sidebar({ sessions, activeSession, onSwitch, onDelete, onSplit, 
           <span className="h-1.5 w-1.5 rounded-full bg-violet-300/60 shadow-[0_0_10px_rgba(168,85,247,0.5)]" />
           <span className="h-1.5 w-1.5 rounded-full bg-[var(--pc-accent-dim)] shadow-[0_0_10px_rgba(34,211,238,0.5)]" />
           <span className="h-1.5 w-1.5 rounded-full bg-indigo-300/50 shadow-[0_0_10px_rgba(99,102,241,0.4)]" />
-          <span className="ml-1 text-[9px] text-pc-text-faint select-all" title={`PinchChat v${__APP_VERSION__}`}>v{__APP_VERSION__}</span>
+          <VersionBadge />
         </div>
         {/* Resize drag handle */}
         <div

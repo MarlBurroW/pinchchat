@@ -212,11 +212,12 @@ html, body {
 
 .ht-backdrop,
 .ht-textarea {
-  /* Must share identical text layout */
+  /* Must share EXACTLY identical text layout — any difference causes cursor desync */
   font-family: inherit;
-  font-size: 0.875rem; /* text-sm */
-  line-height: 1.25rem;
-  padding: 0.75rem 1rem; /* py-3 px-4 */
+  font-size: inherit;
+  line-height: inherit;
+  letter-spacing: inherit;
+  word-spacing: inherit;
   white-space: pre-wrap;
   word-break: break-word;
   overflow-wrap: break-word;
@@ -224,6 +225,7 @@ html, body {
   overflow-y: auto;
   margin: 0;
   box-sizing: border-box;
+  /* padding, border, border-radius all come from the shared className */
 }
 
 .ht-backdrop {
@@ -231,9 +233,7 @@ html, body {
   inset: 0;
   pointer-events: none;
   color: var(--pc-text-primary);
-  border: 1px solid transparent; /* match textarea border width to keep text aligned */
-  border-radius: 1rem; /* rounded-2xl */
-  max-height: 200px;
+  background: transparent;
 }
 
 .ht-textarea {
@@ -246,38 +246,31 @@ html, body {
   z-index: 1;
 }
 
-/* Token colors */
+/* Token colors — ONLY color allowed, nothing that changes text geometry */
 .ht-code-block {
   color: #67e8f9; /* cyan-300 */
-  background: var(--pc-accent-glow);
-  border-radius: 4px;
 }
 
 .ht-inline-code {
   color: #67e8f9;
-  background: var(--pc-accent-glow);
-  border-radius: 3px;
-  /* No padding — must match textarea text layout exactly to avoid cursor desync */
 }
 
 .ht-bold {
   color: var(--pc-text-primary);
-  /* No font-weight change — bold text is wider and causes cursor desync */
 }
 
 .ht-italic {
   color: var(--pc-text-secondary);
-  font-style: italic;
+  /* No font-style: italic — italic glyphs have different widths, causes cursor desync */
 }
 
 .ht-heading {
   color: #a78bfa; /* violet-400 */
-  font-weight: 600;
+  /* No font-weight — bolder glyphs are wider, causes cursor desync */
 }
 
 .ht-link {
   color: #67e8f9;
-  text-decoration: underline;
 }
 
 /* Accessibility: respect reduced-motion preferences */

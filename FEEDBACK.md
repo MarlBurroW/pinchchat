@@ -699,3 +699,15 @@
 - **Status:** done
 - **Completed:** 2026-02-13 — commit `84512b1`
 - **Description:** Avatar image shows as broken for some deployments. Bardak's instance (deployed by Pelouse) shows a broken image. Works on Nicolas's instance. Likely the avatar URL configured by Pelouse is invalid or blocked. PinchChat should handle broken avatar images gracefully (fallback to initials or default icon).
+
+## Item #67
+- **Date:** 2026-02-13
+- **Priority:** medium
+- **Status:** pending
+- **Description:** Add an update indicator next to the version number in the UI. When a newer Docker image/release is available on GitHub (compare current version vs latest GitHub release tag), show a visual indicator (badge, dot, or link) so users know they can update.
+
+## Item #68
+- **Date:** 2026-02-13
+- **Priority:** high
+- **Status:** pending
+- **Description:** Cursor desync in textarea STILL present after v1.39.2 fix. The cursor position still gets ahead of where characters actually appear. The previous fix (removing padding/bold from backdrop tokens) was insufficient. Need deeper investigation — likely the HighlightedTextarea backdrop and textarea have mismatched rendering (font metrics, line-height, word-wrap differences, or span wrapping in the backdrop creating different text flow). Consider disabling highlight entirely as test, or ensuring backdrop uses identical character-level rendering with zero extra styling that could affect text width/flow.
