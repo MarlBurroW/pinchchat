@@ -637,7 +637,8 @@
 ## Item #59
 - **Date:** 2026-02-13
 - **Priority:** high
-- **Status:** pending
+- **Status:** done
+- **Completed:** 2026-02-13 — commit `b783ae1`
 - **Description:** Optimistic message rendering — messages sent by the user should appear immediately in the chat, not wait for server echo. Currently when the agent is busy processing, user messages can take a long time to appear.
   - Show the message instantly in the chat (optimistic UI) with a subtle "sending" indicator (e.g. clock icon or dimmed opacity)
   - When server confirms (echo received), update to "sent" state (e.g. checkmark or full opacity)
