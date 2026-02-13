@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { X } from 'lucide-react';
+import { X, ImageOff } from 'lucide-react';
 
 interface ImageBlockProps {
   src: string;
@@ -43,6 +43,17 @@ function Lightbox({ src, alt, onClose }: ImageBlockProps & { onClose: () => void
 
 export function ImageBlock({ src, alt }: ImageBlockProps) {
   const [lightbox, setLightbox] = useState(false);
+  const [error, setError] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  if (error) {
+    return (
+      <div className="my-2 flex items-center gap-2 px-3 py-2 rounded-xl border border-pc-border bg-pc-elevated/50 text-pc-muted text-sm">
+        <ImageOff size={16} className="shrink-0 opacity-60" />
+        <span>{alt || 'Image failed to load'}</span>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -53,11 +64,16 @@ export function ImageBlock({ src, alt }: ImageBlockProps) {
           aria-label={`View ${alt || 'image'} full size`}
           className="block rounded-xl border border-pc-border cursor-pointer hover:brightness-110 transition-all focus:outline-none focus:ring-2 focus:ring-[var(--pc-accent-dim)]"
         >
+          {loading && (
+            <div className="w-48 h-32 rounded-xl bg-pc-elevated/50 animate-pulse" />
+          )}
           <img
             src={src}
             alt={alt || 'Image'}
-            className="max-w-full max-h-80 rounded-xl"
+            className={`max-w-full max-h-80 rounded-xl${loading ? ' hidden' : ''}`}
             loading="lazy"
+            onLoad={() => setLoading(false)}
+            onError={() => { setLoading(false); setError(true); }}
           />
         </button>
       </div>
