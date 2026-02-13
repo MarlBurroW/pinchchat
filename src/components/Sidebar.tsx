@@ -1,5 +1,5 @@
 import { useState, useMemo, useRef, useEffect, useCallback } from 'react';
-import { X, Sparkles, Search, Pin, Trash2, Columns2 } from 'lucide-react';
+import { X, Sparkles, Search, Pin, Trash2, Columns2, Clock, Bot, MessageSquare, Globe, Zap } from 'lucide-react';
 import type { Session } from '../types';
 import { useT } from '../hooks/useLocale';
 import { SessionIcon } from './SessionIcon';
@@ -9,6 +9,42 @@ import { relativeTime } from '../lib/relativeTime';
 const PINNED_KEY = 'pinchchat-pinned-sessions';
 const WIDTH_KEY = 'pinchchat-sidebar-width';
 const ORDER_KEY = 'pinchchat-session-order';
+const FILTER_KEY = 'pinchchat-session-filter';
+
+/** Detect the category of a session for filtering */
+function sessionCategory(s: Session): string {
+  if (s.key.includes(':cron:')) return 'cron';
+  if (s.key.includes(':spawn:') || s.key.includes(':sub:')) return 'agent';
+  const ch = s.channel?.toLowerCase();
+  if (ch && ch !== 'webchat') return ch;
+  return 'other';
+}
+
+/** Get unique categories present in sessions */
+function getAvailableCategories(sessions: Session[]): string[] {
+  const cats = new Set<string>();
+  for (const s of sessions) cats.add(sessionCategory(s));
+  return Array.from(cats).sort();
+}
+
+/** Icons for filter chips */
+function FilterChipIcon({ cat, size = 12 }: { cat: string; size?: number }) {
+  switch (cat) {
+    case 'cron': return <Clock size={size} />;
+    case 'agent': return <Bot size={size} />;
+    case 'discord': return <MessageSquare size={size} />;
+    case 'telegram': return <MessageSquare size={size} />;
+    default: return <Globe size={size} />;
+  }
+}
+
+/** Pretty label for category */
+function categoryLabel(cat: string): string {
+  if (cat === 'cron') return 'Cron';
+  if (cat === 'agent') return 'Agents';
+  if (cat === 'other') return 'Chat';
+  return cat.charAt(0).toUpperCase() + cat.slice(1);
+}
 const MIN_WIDTH = 220;
 const MAX_WIDTH = 480;
 const DEFAULT_WIDTH = 288; // w-72
@@ -72,6 +108,9 @@ export function Sidebar({ sessions, activeSession, onSwitch, onDelete, onSplit, 
   const [dragging, setDragging] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const [customOrder, setCustomOrder] = useState<string[]>(getSavedOrder);
+  const [channelFilter, setChannelFilter] = useState<string | null>(() => {
+    try { return localStorage.getItem(FILTER_KEY); } catch { return null; }
+  });
   const [dragKey, setDragKey] = useState<string | null>(null);
   const [dropTarget, setDropTarget] = useState<string | null>(null);
   const searchRef = useRef<HTMLInputElement>(null);
@@ -143,11 +182,30 @@ export function Sidebar({ sessions, activeSession, onSwitch, onDelete, onSplit, 
     setFocusIdx(-1);
   }, []);
 
+  const availableCategories = useMemo(() => getAvailableCategories(sessions), [sessions]);
+
+  const toggleChannelFilter = useCallback((cat: string) => {
+    setChannelFilter(prev => {
+      const next = prev === cat ? null : cat;
+      try {
+        if (next) localStorage.setItem(FILTER_KEY, next);
+        else localStorage.removeItem(FILTER_KEY);
+      } catch { /* noop */ }
+      return next;
+    });
+  }, []);
+
   const filtered = useMemo(() => {
     let list = sessions;
+    // Apply channel filter
+    if (channelFilter === 'active') {
+      list = list.filter(s => s.isActive);
+    } else if (channelFilter) {
+      list = list.filter(s => sessionCategory(s) === channelFilter);
+    }
     if (filter.trim()) {
       const q = filter.toLowerCase();
-      list = sessions.filter(s => sessionDisplayName(s).toLowerCase().includes(q));
+      list = list.filter(s => sessionDisplayName(s).toLowerCase().includes(q));
     }
     // Sort pinned sessions to top (preserving relative order within each group)
     const pinnedList = list.filter(s => pinned.has(s.key));
@@ -165,7 +223,7 @@ export function Sidebar({ sessions, activeSession, onSwitch, onDelete, onSplit, 
     pinnedList.sort(byCustomThenRecent);
     unpinnedList.sort(byCustomThenRecent);
     return [...pinnedList, ...unpinnedList];
-  }, [sessions, filter, pinned, customOrder]);
+  }, [sessions, filter, pinned, customOrder, channelFilter]);
 
   return (
     <>
@@ -210,6 +268,47 @@ export function Sidebar({ sessions, activeSession, onSwitch, onDelete, onSplit, 
                 </button>
               )}
             </div>
+          </div>
+        )}
+
+        {/* Channel filter chips */}
+        {availableCategories.length > 1 && (
+          <div className="px-2 pt-1.5 flex flex-wrap gap-1">
+            <button
+              onClick={() => { setChannelFilter(null); try { localStorage.removeItem(FILTER_KEY); } catch { /* noop */ } }}
+              className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium transition-colors border ${
+                !channelFilter
+                  ? 'bg-[var(--pc-accent-glow)] text-pc-accent-light border-[var(--pc-accent-dim)]'
+                  : 'bg-transparent text-pc-text-muted border-pc-border hover:bg-[var(--pc-hover)] hover:text-pc-text-secondary'
+              }`}
+            >
+              {t('sidebar.filterAll')}
+            </button>
+            <button
+              onClick={() => toggleChannelFilter('active')}
+              className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium transition-colors border ${
+                channelFilter === 'active'
+                  ? 'bg-violet-500/15 text-violet-300 border-violet-500/30'
+                  : 'bg-transparent text-pc-text-muted border-pc-border hover:bg-[var(--pc-hover)] hover:text-pc-text-secondary'
+              }`}
+            >
+              <Zap size={10} />
+              {t('sidebar.filterActive')}
+            </button>
+            {availableCategories.map(cat => (
+              <button
+                key={cat}
+                onClick={() => toggleChannelFilter(cat)}
+                className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium transition-colors border ${
+                  channelFilter === cat
+                    ? 'bg-[var(--pc-accent-glow)] text-pc-accent-light border-[var(--pc-accent-dim)]'
+                    : 'bg-transparent text-pc-text-muted border-pc-border hover:bg-[var(--pc-hover)] hover:text-pc-text-secondary'
+                }`}
+              >
+                <FilterChipIcon cat={cat} size={10} />
+                {categoryLabel(cat)}
+              </button>
+            ))}
           </div>
         )}
 
