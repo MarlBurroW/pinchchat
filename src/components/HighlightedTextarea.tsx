@@ -75,7 +75,7 @@ export const HighlightedTextarea = forwardRef<HTMLTextAreaElement, Props>(
     }
 
     return (
-      <div className="ht-container relative">
+      <div className="ht-container relative flex-1 min-w-0">
         <pre
           ref={backdropRef}
           className={`ht-backdrop ${className}`}
