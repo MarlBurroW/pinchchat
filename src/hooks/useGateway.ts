@@ -6,7 +6,7 @@ import { isSystemEvent } from '../lib/systemEvent';
 import type { ChatMessage, MessageBlock, ConnectionStatus, Session, AgentIdentity } from '../types';
 
 interface ChatPayloadMessage {
-  content?: string | Array<{ type: string; text?: string }>;
+  content?: string | Array<{ type: string; text?: string; thinking?: string }>;
 }
 
 function extractText(message: ChatPayloadMessage | undefined): string {
@@ -20,6 +20,16 @@ function extractText(message: ChatPayloadMessage | undefined): string {
       .join('\n');
   }
   return '';
+}
+
+function extractThinking(message: ChatPayloadMessage | undefined): string {
+  if (!message) return '';
+  const content = message.content;
+  if (!Array.isArray(content)) return '';
+  return content
+    .filter((b) => b.type === 'thinking')
+    .map((b) => b.thinking || b.text || '')
+    .join('\n');
 }
 
 export function useGateway() {
@@ -304,6 +314,7 @@ export function useGateway() {
 
       if (state === 'delta') {
         const text = extractText(message);
+        const thinking = extractThinking(message);
         currentRunIdRef.current = runId;
 
         setMessages(prev => {
@@ -311,16 +322,24 @@ export function useGateway() {
           if (last && last.role === 'assistant' && last.isStreaming && last.runId === runId) {
             const updated = { ...last };
             updated.content = text;
-            const nonTextBlocks = updated.blocks.filter(b => b.type !== 'text');
-            updated.blocks = [...nonTextBlocks, { type: 'text' as const, text }];
+            // Preserve tool blocks, rebuild text + thinking blocks from latest delta
+            const toolBlocks = updated.blocks.filter(b => b.type === 'tool_use' || b.type === 'tool_result');
+            const newBlocks: MessageBlock[] = [];
+            if (thinking) newBlocks.push({ type: 'thinking' as const, text: thinking });
+            newBlocks.push(...toolBlocks);
+            newBlocks.push({ type: 'text' as const, text });
+            updated.blocks = newBlocks;
             return [...prev.slice(0, -1), updated];
           }
+          const blocks: MessageBlock[] = [];
+          if (thinking) blocks.push({ type: 'thinking' as const, text: thinking });
+          blocks.push({ type: 'text' as const, text });
           const msg: ChatMessage = {
             id: runId + '-' + Date.now(),
             role: 'assistant',
             content: text,
             timestamp: Date.now(),
-            blocks: [{ type: 'text', text }],
+            blocks,
             isStreaming: true,
             runId,
           };
