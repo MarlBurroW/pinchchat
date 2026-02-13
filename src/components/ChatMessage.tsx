@@ -1,11 +1,7 @@
 
 import { useState, useCallback, useRef, useEffect, useMemo, memo } from 'react';
 import { createPortal } from 'react-dom';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-import remarkBreaks from 'remark-breaks';
-import rehypeHighlight from 'rehype-highlight';
-import { rehypeHighlightOptions } from '../lib/highlight';
+import { LazyMarkdown } from './LazyMarkdown';
 import type { ChatMessage as ChatMessageType, MessageBlock } from '../types';
 import { useTheme } from '../hooks/useTheme';
 import { ThinkingBlock } from './ThinkingBlock';
@@ -167,17 +163,13 @@ function MarkdownLink(props: React.AnchorHTMLAttributes<HTMLAnchorElement>) {
 }
 
 const markdownComponents = { pre: CodeBlock, img: MarkdownImage, a: MarkdownLink };
-// Hoisted to module scope to avoid creating new array references each render
-import type { PluggableList } from 'unified';
-const remarkPlugins: PluggableList = [remarkGfm, remarkBreaks];
-const rehypePlugins: PluggableList = [[rehypeHighlight, rehypeHighlightOptions]];
 
 function renderTextBlocks(blocks: MessageBlock[]) {
   return getTextBlocks(blocks).map((block, i) => (
     <div key={`text-${i}`} className="markdown-body">
-      <ReactMarkdown remarkPlugins={remarkPlugins} rehypePlugins={rehypePlugins} components={markdownComponents}>
+      <LazyMarkdown components={markdownComponents}>
         {autoFormatText((block as Extract<MessageBlock, { type: 'text' }>).text)}
-      </ReactMarkdown>
+      </LazyMarkdown>
     </div>
   ));
 }
@@ -480,9 +472,9 @@ export const ChatMessageComponent = memo(function ChatMessageComponent({ message
           {/* User-visible text */}
           {message.blocks.length > 0 ? renderTextBlocks(message.blocks) : (
             <div className="markdown-body">
-              <ReactMarkdown remarkPlugins={remarkPlugins} rehypePlugins={rehypePlugins} components={markdownComponents}>
+              <LazyMarkdown components={markdownComponents}>
                 {autoFormatText(message.content)}
-              </ReactMarkdown>
+              </LazyMarkdown>
             </div>
           )}
 
