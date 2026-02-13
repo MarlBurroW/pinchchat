@@ -1,6 +1,6 @@
 import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { ChevronRight, ChevronDown, Check, Copy, WrapText, AlignLeft } from 'lucide-react';
-import hljs from 'highlight.js/lib/common';
+import hljs from '../lib/highlight';
 import { useT } from '../hooks/useLocale';
 import { ImageBlock } from './ImageBlock';
 import { useToolCollapse } from '../hooks/useToolCollapse';

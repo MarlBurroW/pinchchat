@@ -5,6 +5,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkBreaks from 'remark-breaks';
 import rehypeHighlight from 'rehype-highlight';
+import { rehypeHighlightOptions } from '../lib/highlight';
 import type { ChatMessage as ChatMessageType, MessageBlock } from '../types';
 import { ThinkingBlock } from './ThinkingBlock';
 import { ThinkingIndicator } from './ThinkingIndicator';
@@ -169,7 +170,7 @@ const markdownComponents = { pre: CodeBlock, img: MarkdownImage, a: MarkdownLink
 function renderTextBlocks(blocks: MessageBlock[]) {
   return getTextBlocks(blocks).map((block, i) => (
     <div key={`text-${i}`} className="markdown-body">
-      <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]} rehypePlugins={[rehypeHighlight]} components={markdownComponents}>
+      <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]} rehypePlugins={[[rehypeHighlight, rehypeHighlightOptions]]} components={markdownComponents}>
         {autoFormatText((block as Extract<MessageBlock, { type: 'text' }>).text)}
       </ReactMarkdown>
     </div>
@@ -470,7 +471,7 @@ export function ChatMessageComponent({ message: rawMessage, onRetry, agentAvatar
           {/* User-visible text */}
           {message.blocks.length > 0 ? renderTextBlocks(message.blocks) : (
             <div className="markdown-body">
-              <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]} rehypePlugins={[rehypeHighlight]} components={markdownComponents}>
+              <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]} rehypePlugins={[[rehypeHighlight, rehypeHighlightOptions]]} components={markdownComponents}>
                 {autoFormatText(message.content)}
               </ReactMarkdown>
             </div>
