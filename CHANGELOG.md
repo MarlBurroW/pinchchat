@@ -4,6 +4,10 @@ All notable changes to PinchChat are documented here.
 
 Format based on [Keep a Changelog](https://keepachangelog.com/), with [Conventional Commits](https://www.conventionalcommits.org/).
 
+## [1.29.1] — 2026-02-13
+### Fixed
+- External links in markdown messages now open in a new tab with `rel="noopener noreferrer"` for security
+
 ## [1.29.0] — 2026-02-13
 ### Added
 - System theme option — automatically follows OS light/dark preference via `prefers-color-scheme`, updates dynamically when OS setting changes
