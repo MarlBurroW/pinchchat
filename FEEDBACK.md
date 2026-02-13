@@ -537,7 +537,8 @@
 ## Item #50
 - **Date:** 2026-02-12
 - **Priority:** medium
-- **Status:** pending
+- **Status:** done
+- **Completed:** 2026-02-13 — commit `f09482e`
 - **Description:** Multi-tab — split view for 2 sessions side by side
   - Allow viewing 2 sessions simultaneously in a split pane layout
   - Drag-to-resize divider between panes
