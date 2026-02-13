@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://marlburrow.github.io/pinchchat/sitemap.xml
