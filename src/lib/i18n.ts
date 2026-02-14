@@ -323,9 +323,159 @@ const fr: Record<keyof typeof en, string> = {
   'slash.help': 'Afficher les commandes disponibles',
 };
 
+const es: Record<keyof typeof en, string> = {
+  'login.title': 'PinchChat',
+  'login.subtitle': 'Conéctate a tu gateway OpenClaw',
+  'login.gatewayUrl': 'URL del gateway',
+  'login.token': 'Token',
+  'login.tokenPlaceholder': 'Introduce tu token de gateway',
+  'login.connect': 'Conectar',
+  'login.connecting': 'Conectando…',
+  'login.showToken': 'Mostrar token',
+  'login.hideToken': 'Ocultar token',
+  'login.storedLocally': 'Las credenciales se guardan localmente en tu navegador',
+  'login.wsHint': 'La URL debe empezar con ws:// o wss://',
+
+  'header.title': 'PinchChat',
+  'header.connected': 'Conectado',
+  'header.disconnected': 'Desconectado',
+  'header.logout': 'Cerrar sesión',
+  'header.toggleSidebar': 'Mostrar/ocultar barra lateral',
+  'header.changeLanguage': 'Cambiar idioma',
+  'header.soundOn': 'Activar sonido de notificación',
+  'header.soundOff': 'Desactivar sonido de notificación',
+
+  'chat.welcome': 'PinchChat',
+  'chat.welcomeSub': 'Envía un mensaje para comenzar',
+  'chat.suggestions': 'Prueba a preguntar...',
+  'chat.suggestion1': 'Resume mis últimos correos',
+  'chat.suggestion2': '¿Qué tengo en el calendario hoy?',
+  'chat.suggestion3': 'Busca en la web las últimas noticias',
+  'chat.suggestion4': 'Ayúdame a escribir un script',
+  'chat.loadingHistory': 'Cargando mensajes…',
+  'chat.inputPlaceholder': 'Escribe un mensaje…',
+  'chat.inputLabel': 'Mensaje',
+  'chat.attachFile': 'Adjuntar archivo',
+  'chat.send': 'Enviar',
+  'chat.stop': 'Detener',
+  'chat.showPreview': 'Vista previa markdown',
+  'chat.hidePreview': 'Ocultar vista previa',
+  'chat.scrollToBottom': 'Nuevos mensajes',
+  'chat.scrollDown': 'Ir al final',
+  'chat.collapseTools': 'Contraer todas las herramientas',
+  'chat.expandTools': 'Expandir todas las herramientas',
+  'chat.messages': 'Mensajes del chat',
+  'chat.thinking': 'Pensando…',
+
+  'sidebar.title': 'Sesiones',
+  'sidebar.empty': 'Sin sesiones',
+  'sidebar.search': 'Buscar sesiones…',
+  'sidebar.noResults': 'Sin resultados',
+  'sidebar.pin': 'Fijar sesión',
+  'sidebar.unpin': 'Desfijar sesión',
+  'sidebar.pinned': 'Fijadas',
+  'sidebar.delete': 'Eliminar sesión',
+  'sidebar.deleteConfirm': '¿Eliminar esta sesión? Esta acción no se puede deshacer.',
+  'sidebar.deleteCancel': 'Cancelar',
+  'sidebar.openSplit': 'Abrir en vista dividida',
+  'sidebar.close': 'Cerrar barra lateral',
+  'sidebar.clearSearch': 'Limpiar búsqueda',
+  'sidebar.filterAll': 'Todas',
+  'sidebar.filterActive': 'Activas',
+  'split.close': 'Cerrar vista dividida',
+  'app.mainChat': 'Chat principal',
+  'app.splitPane': 'Panel dividido',
+  'app.skipToChat': 'Ir al campo de entrada',
+
+  'thinking.label': 'Pensamiento',
+  'thinking.reasoning': 'Razonando…',
+
+  'tool.parameters': 'Parámetros',
+  'tool.result': 'Resultado',
+
+  'connection.reconnecting': 'Conexión perdida — reconectando…',
+  'connection.reconnected': '¡Reconectado!',
+
+  'message.copy': 'Copiar mensaje',
+  'message.copied': '¡Copiado!',
+  'message.retry': 'Reenviar mensaje',
+  'message.metadata': 'Detalles del mensaje',
+  'message.rawJson': 'JSON sin formato',
+  'message.hideRawJson': 'Ocultar JSON sin formato',
+
+  'time.yesterday': 'Ayer',
+  'time.today': 'Hoy',
+
+  'shortcuts.title': 'Atajos de teclado',
+  'shortcuts.send': 'Enviar mensaje',
+  'shortcuts.newline': 'Nueva línea',
+  'shortcuts.search': 'Buscar sesiones',
+  'shortcuts.switchSession': 'Sesión anterior / siguiente',
+  'shortcuts.closeSidebar': 'Cerrar barra / búsqueda',
+  'shortcuts.stop': 'Detener generación',
+  'shortcuts.help': 'Mostrar atajos',
+  'shortcuts.close': 'Cerrar',
+  'shortcuts.chatSection': 'Chat',
+
+  'error.title': 'Algo salió mal',
+  'error.description': 'Ocurrió un error inesperado al mostrar la interfaz. Puedes intentar de nuevo o recargar la página.',
+  'error.retry': 'Reintentar',
+  'error.reload': 'Recargar página',
+  'shortcuts.navigationSection': 'Navegación',
+  'shortcuts.generalSection': 'General',
+
+  'header.export': 'Exportar conversación como Markdown',
+  'header.compact': 'Compactar',
+  'header.compacting': 'Compactando…',
+  'header.sessionInfo': 'Info de sesión',
+  'sessionInfo.sessionKey': 'Clave de sesión',
+  'sessionInfo.channel': 'Canal',
+  'sessionInfo.kind': 'Tipo',
+  'sessionInfo.model': 'Modelo',
+  'sessionInfo.agent': 'Agente',
+  'sessionInfo.messages': 'Mensajes',
+  'sessionInfo.totalTokens': 'Tokens totales',
+  'sessionInfo.inputTokens': 'Entrada',
+  'sessionInfo.outputTokens': 'Salida',
+  'sessionInfo.contextWindow': 'Contexto',
+  'sessionInfo.lastActive': 'Última actividad',
+
+  'theme.title': 'Tema',
+  'theme.mode': 'Modo',
+  'theme.accent': 'Acento',
+  'theme.system': 'Sistema',
+  'theme.dark': 'Oscuro',
+  'theme.light': 'Claro',
+  'theme.oled': 'OLED',
+
+  'search.placeholder': 'Buscar en mensajes…',
+  'search.noResults': '0 resultados',
+  'search.prev': 'Resultado anterior',
+  'search.next': 'Resultado siguiente',
+  'shortcuts.searchMessages': 'Buscar en mensajes',
+
+  'settings.sendShortcut': 'Enviar con',
+  'settings.sendEnter': 'Enter',
+  'settings.sendCtrlEnter': 'Ctrl+Enter',
+
+  'message.bookmark': 'Marcar mensaje',
+  'message.removeBookmark': 'Quitar marcador',
+  'chat.bookmarks': 'Marcadores',
+  'chat.export': 'Exportar conversación',
+  'chat.contextCompacted': 'Contexto compactado — mensajes anteriores en caché local',
+  'slash.commands': 'Comandos',
+  'slash.status': 'Mostrar estado y uso de la sesión',
+  'slash.reasoning': 'Activar/desactivar razonamiento',
+  'slash.verbose': 'Activar/desactivar modo detallado',
+  'slash.model': 'Cambiar modelo para esta sesión',
+  'slash.compact': 'Compactar contexto de conversación',
+  'slash.reset': 'Reiniciar la sesión',
+  'slash.help': 'Mostrar comandos disponibles',
+};
+
 export type TranslationKey = keyof typeof en;
 
-const messages: Record<string, Record<string, string>> = { en, fr };
+const messages: Record<string, Record<string, string>> = { en, fr, es };
 
 export const supportedLocales = Object.keys(messages) as string[];
 
@@ -333,6 +483,7 @@ export const supportedLocales = Object.keys(messages) as string[];
 export const localeLabels: Record<string, string> = {
   en: 'EN',
   fr: 'FR',
+  es: 'ES',
 };
 
 function resolveInitialLocale(): string {

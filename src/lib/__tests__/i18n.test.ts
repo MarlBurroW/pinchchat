@@ -9,9 +9,10 @@ describe('i18n', () => {
   });
 
   describe('supportedLocales', () => {
-    it('includes en and fr', () => {
+    it('includes en, fr, and es', () => {
       expect(supportedLocales).toContain('en');
       expect(supportedLocales).toContain('fr');
+      expect(supportedLocales).toContain('es');
     });
 
     it('has labels for all supported locales', () => {
@@ -44,6 +45,11 @@ describe('i18n', () => {
     it('returns French strings when locale is fr', () => {
       setLocale('fr');
       expect(t('login.connect')).toBe('Connexion');
+    });
+
+    it('returns Spanish strings when locale is es', () => {
+      setLocale('es');
+      expect(t('login.connect')).toBe('Conectar');
     });
 
     it('returns the key itself for unknown keys', () => {
