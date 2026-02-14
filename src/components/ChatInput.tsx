@@ -92,7 +92,7 @@ export function ChatInput({ onSend, onAbort, isGenerating, disabled, sessionKey 
   const [files, setFiles] = useState<FileAttachment[]>([]);
   const [isDragOver, setIsDragOver] = useState(false);
   const [showPreview, setShowPreview] = useState(() => localStorage.getItem('pinchchat-md-preview') === '1');
-  const [highlightEnabled, setHighlightEnabled] = useState(() => localStorage.getItem('pinchchat-syntax-hl') !== '0');
+  const [highlightEnabled, setHighlightEnabled] = useState(() => localStorage.getItem('pinchchat-syntax-hl') === '1');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
