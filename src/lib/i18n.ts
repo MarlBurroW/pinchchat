@@ -121,6 +121,8 @@ const en = {
 
   // Export
   'header.export': 'Export conversation as Markdown',
+  'header.compact': 'Compact',
+  'header.compacting': 'Compacting…',
 
   // Theme
   'theme.title': 'Theme',
@@ -253,6 +255,8 @@ const fr: Record<keyof typeof en, string> = {
   'shortcuts.generalSection': 'Général',
 
   'header.export': 'Exporter la conversation en Markdown',
+  'header.compact': 'Compacter',
+  'header.compacting': 'Compaction…',
 
   'theme.title': 'Thème',
   'theme.mode': 'Mode',

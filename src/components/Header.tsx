@@ -1,5 +1,5 @@
-import { useCallback } from 'react';
-import { Menu, Sparkles, LogOut, Volume2, VolumeOff, Cpu, Bot, Download } from 'lucide-react';
+import { useCallback, useState } from 'react';
+import { Menu, Sparkles, LogOut, Volume2, VolumeOff, Cpu, Bot, Download, Minimize2 } from 'lucide-react';
 import type { ConnectionStatus, Session, ChatMessage } from '../types';
 import { useT } from '../hooks/useLocale';
 import { LanguageSelector } from './LanguageSelector';
@@ -18,9 +18,10 @@ interface Props {
   messages?: ChatMessage[];
   agentAvatarUrl?: string;
   agentName?: string;
+  onCompact?: (sessionKey: string) => Promise<boolean>;
 }
 
-export function Header({ status, sessionKey, onToggleSidebar, activeSessionData, onLogout, soundEnabled, onToggleSound, messages, agentAvatarUrl, agentName }: Props) {
+export function Header({ status, sessionKey, onToggleSidebar, activeSessionData, onLogout, soundEnabled, onToggleSound, messages, agentAvatarUrl, agentName, onCompact }: Props) {
   const t = useT();
   const sessionLabel = activeSessionData ? sessionDisplayName(activeSessionData) : (sessionKey.split(':').pop() || sessionKey);
 
@@ -129,9 +130,39 @@ export function Header({ status, sessionKey, onToggleSidebar, activeSessionData,
             <span className="text-[11px] text-pc-text-secondary tabular-nums shrink-0 whitespace-nowrap">
               {(total / 1000).toFixed(1)}k / {(ctx / 1000).toFixed(0)}k tokens
             </span>
+            {onCompact && pct >= 50 && (
+              <CompactButton sessionKey={sessionKey} onCompact={onCompact} />
+            )}
           </div>
         );
       })()}
     </>
+  );
+}
+
+function CompactButton({ sessionKey, onCompact }: { sessionKey: string; onCompact: (key: string) => Promise<boolean> }) {
+  const [compacting, setCompacting] = useState(false);
+  const t = useT();
+
+  const handleCompact = useCallback(async () => {
+    if (compacting) return;
+    setCompacting(true);
+    try {
+      await onCompact(sessionKey);
+    } finally {
+      setCompacting(false);
+    }
+  }, [compacting, sessionKey, onCompact]);
+
+  return (
+    <button
+      onClick={handleCompact}
+      disabled={compacting}
+      className="inline-flex items-center gap-1 text-[10px] text-pc-text-muted hover:text-pc-text shrink-0 px-1.5 py-0.5 rounded hover:bg-[var(--pc-hover)] transition-colors disabled:opacity-50"
+      title={t('header.compact')}
+    >
+      <Minimize2 className={`h-3 w-3 ${compacting ? 'animate-pulse' : ''}`} />
+      <span className="hidden sm:inline">{compacting ? t('header.compacting') : t('header.compact')}</span>
+    </button>
   );
 }
