@@ -15,7 +15,6 @@
 
 **A sleek, dark-themed webchat UI for [OpenClaw](https://github.com/openclaw/openclaw) — monitor sessions, stream responses, and inspect tool calls in real-time.**
 
-> 🎬 **[See the live demo →](https://marlburrow.github.io/pinchchat/)** — interactive preview of the UI with tool call visualization, streaming, and more.
 
 <p align="center">
   <img src="docs/demo.gif" alt="PinchChat Demo" width="800" />
