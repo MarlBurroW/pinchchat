@@ -1,5 +1,5 @@
 import { useState, useCallback, type HTMLAttributes, type ReactElement } from 'react';
-import { Check, Copy, Hash } from 'lucide-react';
+import { Check, Copy, Hash, WrapText, AlignLeft } from 'lucide-react';
 
 /** Extract the language from the nested <code> element's className (e.g. "language-ts"). */
 function extractLanguage(children: React.ReactNode): string | null {
@@ -43,6 +43,7 @@ function formatLanguage(lang: string): string {
  * Wraps code blocks with a language label and a floating copy button.
  */
 const LINE_NUMBER_KEY = 'pinchchat-line-numbers';
+const WRAP_KEY = 'pinchchat-code-wrap';
 const LINE_THRESHOLD = 3; // Only show line numbers for blocks with more than this many lines
 
 export function CodeBlock(props: HTMLAttributes<HTMLPreElement>) {
@@ -50,6 +51,10 @@ export function CodeBlock(props: HTMLAttributes<HTMLPreElement>) {
   const [showLineNumbers, setShowLineNumbers] = useState(() => {
     const stored = localStorage.getItem(LINE_NUMBER_KEY);
     return stored === null ? true : stored === 'true';
+  });
+  const [wordWrap, setWordWrap] = useState(() => {
+    const stored = localStorage.getItem(WRAP_KEY);
+    return stored === 'true';
   });
   const language = extractLanguage(props.children);
 
@@ -74,6 +79,14 @@ export function CodeBlock(props: HTMLAttributes<HTMLPreElement>) {
     });
   }, []);
 
+  const toggleWrap = useCallback(() => {
+    setWordWrap(prev => {
+      const next = !prev;
+      localStorage.setItem(WRAP_KEY, String(next));
+      return next;
+    });
+  }, []);
+
   const shouldShowNumbers = showLineNumbers && hasEnoughLines;
 
   return (
@@ -81,17 +94,27 @@ export function CodeBlock(props: HTMLAttributes<HTMLPreElement>) {
       {language && (
         <div className="flex items-center justify-between px-4 py-1.5 bg-pc-elevated/80 border-b border-pc-border rounded-t-lg text-[11px] text-pc-text-muted font-mono select-none">
           <span>{formatLanguage(language)}</span>
-          {hasEnoughLines && (
+          <div className="flex items-center gap-1">
             <button
-              onClick={toggleLineNumbers}
+              onClick={toggleWrap}
               className="flex items-center gap-1 px-1.5 py-0.5 rounded hover:bg-pc-border/40 transition-colors text-pc-text-muted hover:text-pc-text-secondary"
-              title={showLineNumbers ? 'Hide line numbers' : 'Show line numbers'}
+              title={wordWrap ? 'Disable word wrap' : 'Enable word wrap'}
               type="button"
             >
-              <Hash className="h-3 w-3" />
-              <span className="text-[10px]">{lines.length}</span>
+              {wordWrap ? <AlignLeft className="h-3 w-3" /> : <WrapText className="h-3 w-3" />}
             </button>
-          )}
+            {hasEnoughLines && (
+              <button
+                onClick={toggleLineNumbers}
+                className="flex items-center gap-1 px-1.5 py-0.5 rounded hover:bg-pc-border/40 transition-colors text-pc-text-muted hover:text-pc-text-secondary"
+                title={showLineNumbers ? 'Hide line numbers' : 'Show line numbers'}
+                type="button"
+              >
+                <Hash className="h-3 w-3" />
+                <span className="text-[10px]">{lines.length}</span>
+              </button>
+            )}
+          </div>
         </div>
       )}
       {shouldShowNumbers ? (
@@ -104,10 +127,10 @@ export function CodeBlock(props: HTMLAttributes<HTMLPreElement>) {
               <div key={i}>{i + 1}</div>
             ))}
           </div>
-          <pre {...props} className={`${props.className || ''} flex-1 !rounded-none !mt-0 min-w-0`} />
+          <pre {...props} className={`${props.className || ''} flex-1 !rounded-none !mt-0 min-w-0`} style={wordWrap ? { whiteSpace: 'pre-wrap', overflowWrap: 'break-word', wordBreak: 'break-word' } : undefined} />
         </div>
       ) : (
-        <pre {...props} className={`${props.className || ''} ${language ? '!rounded-t-none !mt-0' : ''}`} />
+        <pre {...props} className={`${props.className || ''} ${language ? '!rounded-t-none !mt-0' : ''}`} style={wordWrap ? { whiteSpace: 'pre-wrap', overflowWrap: 'break-word', wordBreak: 'break-word' } : undefined} />
       )}
       <button
         onClick={handleCopy}
