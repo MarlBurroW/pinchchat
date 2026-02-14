@@ -103,18 +103,46 @@ export function Chat({ messages, isGenerating, isLoadingHistory, status, session
     return () => el.removeEventListener('scroll', handler);
   }, [checkIfNearBottom]);
 
-  // Reset state on session switch
+  // Persist scroll position per session
+  const scrollPositionsRef = useRef<Map<string, { top: number; height: number }>>(new Map());
   const prevSessionKeyRef = useRef(sessionKey);
   useEffect(() => {
     if (sessionKey !== prevSessionKeyRef.current) {
+      // Save scroll position of previous session
+      const prevKey = prevSessionKeyRef.current;
+      const el = scrollContainerRef.current;
+      if (prevKey && el) {
+        const distFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
+        scrollPositionsRef.current.set(prevKey, { top: el.scrollTop, height: el.scrollHeight });
+        // If user was near bottom, don't save (will auto-scroll to bottom on restore)
+        if (distFromBottom <= SCROLL_THRESHOLD) {
+          scrollPositionsRef.current.delete(prevKey);
+        }
+      }
+
       prevSessionKeyRef.current = sessionKey;
       prevMessageCountRef.current = messages.length;
       setNewMessageCount(0); // eslint-disable-line react-hooks/set-state-in-effect -- intentional: reset on session switch
-      isNearBottomRef.current = true;
-      // Scroll to bottom on session switch
-      requestAnimationFrame(() => scrollToBottom('instant'));
+
+      // Restore scroll position for new session
+      const saved = sessionKey ? scrollPositionsRef.current.get(sessionKey) : undefined;
+      if (saved) {
+        isNearBottomRef.current = false;
+        requestAnimationFrame(() => {
+          const container = scrollContainerRef.current;
+          if (container) {
+            // Adjust for content height changes since last visit
+            const heightDelta = container.scrollHeight - saved.height;
+            container.scrollTop = saved.top + Math.max(0, heightDelta);
+            checkIfNearBottom();
+          }
+        });
+      } else {
+        isNearBottomRef.current = true;
+        requestAnimationFrame(() => scrollToBottom('instant'));
+      }
     }
-  }, [sessionKey, messages.length, scrollToBottom]);
+  }, [sessionKey, messages.length, scrollToBottom, checkIfNearBottom]);
 
   // Auto-scroll when messages change, but only if user is near bottom or just sent a message
   const wasLoadingHistoryRef = useRef(isLoadingHistory);
