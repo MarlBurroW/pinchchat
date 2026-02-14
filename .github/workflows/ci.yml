@@ -53,3 +53,57 @@ jobs:
           du -sh dist/ >> $GITHUB_STEP_SUMMARY
           find dist/assets -name '*.js' -exec du -sh {} \; | sort -rh >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
+
+  notify-failure:
+    needs: build
+    if: failure() && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Collect failure info
+        id: failure-info
+        run: |
+          # Fetch failed job logs via GitHub API
+          RUN_ID=${{ github.run_id }}
+          REPO=${{ github.repository }}
+          
+          # Get failed jobs
+          JOBS=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/${REPO}/actions/runs/${RUN_ID}/jobs")
+          
+          # Extract failed steps
+          FAILED=$(echo "$JOBS" | python3 -c "
+          import json, sys
+          data = json.load(sys.stdin)
+          for job in data.get('jobs', []):
+            if job['conclusion'] == 'failure':
+              for step in job.get('steps', []):
+                if step['conclusion'] == 'failure':
+                  print(f\"Job: {job['name']} | Step: {step['name']}\")
+          " 2>/dev/null || echo "Could not parse jobs")
+          
+          echo "failed_steps<<EOF" >> $GITHUB_OUTPUT
+          echo "$FAILED" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Notify agent webhook
+        if: env.OPENCLAW_WEBHOOK_URL != ''
+        env:
+          OPENCLAW_WEBHOOK_URL: ${{ secrets.OPENCLAW_WEBHOOK_URL }}
+          OPENCLAW_WEBHOOK_TOKEN: ${{ secrets.OPENCLAW_WEBHOOK_TOKEN }}
+        run: |
+          PAYLOAD=$(cat <<JSONEOF
+          {
+            "message": "🚨 CI FAILURE on PinchChat (main branch)\n\nCommit: ${{ github.sha }} by ${{ github.actor }}\nMessage: $(echo '${{ github.event.head_commit.message }}' | head -1 | sed 's/"/\\"/g')\nRun: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\n\nFailed steps:\n${{ steps.failure-info.outputs.failed_steps }}\n\nInstructions: Pull the repo ~/pinchchat, check the CI run logs via gh CLI, identify the failure, fix it, commit and push. Only fix what's broken, don't refactor. Run lint+build locally before pushing.",
+            "model": "anthropic/claude-sonnet-4",
+            "timeoutSeconds": 600
+          }
+          JSONEOF
+          )
+          
+          curl -s -X POST \
+            -H "Authorization: Bearer ${OPENCLAW_WEBHOOK_TOKEN}" \
+            -H "Content-Type: application/json" \
+            -d "$PAYLOAD" \
+            "${OPENCLAW_WEBHOOK_URL}"
+          
+          echo "✅ Agent notified via webhook"
