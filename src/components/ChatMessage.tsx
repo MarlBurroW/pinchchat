@@ -540,20 +540,20 @@ export const ChatMessageComponent = memo(function ChatMessageComponent({ message
                 <Bookmark size={12} className={isBookmarked ? 'fill-amber-400' : ''} />
               </button>
             )}
+            {isUser && onRetry && (
+              <button
+                onClick={() => onRetry(getPlainText(message))}
+                className={`h-6 w-6 rounded-md flex items-center justify-center transition-colors ${message.sendStatus === 'error' ? 'text-red-400' : 'text-pc-text-faint hover:text-pc-accent-light'}`}
+                title={t('message.retry')}
+                aria-label={t('message.retry')}
+              >
+                <RefreshCw size={12} />
+              </button>
+            )}
             <MetadataViewer metadata={message.metadata} />
             <RawJsonToggle isOpen={showRawJson} onToggle={() => setShowRawJson(o => !o)} />
           </div>
-          {/* Retry button (user messages only) */}
-          {isUser && onRetry && (
-            <button
-              onClick={() => onRetry(getPlainText(message))}
-              className={`absolute -top-3 right-2 h-7 w-7 rounded-lg border border-pc-border bg-pc-elevated/80 backdrop-blur-sm flex items-center justify-center text-pc-text-secondary hover:text-pc-accent-light hover:border-[var(--pc-accent-dim)] transition-all ${message.sendStatus === 'error' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
-              title={t('message.retry')}
-              aria-label={t('message.retry')}
-            >
-              <RefreshCw size={13} className={message.sendStatus === 'error' ? 'text-red-400' : ''} />
-            </button>
-          )}
+          {/* Retry button moved into the action toolbar below */}
           {/* User-visible text */}
           {!isUser ? (
             <CollapsibleContent content={message.content || ''} isStreaming={message.isStreaming}>
