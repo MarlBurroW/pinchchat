@@ -11,6 +11,7 @@ import { ToolCollapseProvider } from './contexts/ToolCollapseContext';
 import { sessionDisplayName } from './lib/sessionName';
 import { X } from 'lucide-react';
 import { useT } from './hooks/useLocale';
+import { useSwipeSidebar } from './hooks/useSwipeSidebar';
 
 const Chat = lazy(() => import('./components/Chat').then(m => ({ default: m.Chat })));
 
@@ -83,6 +84,7 @@ export default function App() {
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
+  useSwipeSidebar(sidebarOpen, () => setSidebarOpen(true), () => setSidebarOpen(false));
   const { notify, soundEnabled, toggleSound } = useNotifications();
   const prevMessageCountRef = useRef(messages.length);
 
