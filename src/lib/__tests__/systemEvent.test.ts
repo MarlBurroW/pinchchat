@@ -57,6 +57,18 @@ describe('isSystemEvent', () => {
     expect(isSystemEvent('  [EVENT] test')).toBe(true);
     expect(isSystemEvent('\n[cron:x] task')).toBe(true);
   });
+
+  it('detects [System Message] markers (subagent completion notifications)', () => {
+    expect(isSystemEvent('[System Message] Subagent spark completed: task done')).toBe(true);
+    expect(isSystemEvent('[system message] something happened')).toBe(true);
+    expect(isSystemEvent('[SYSTEM MESSAGE] All caps')).toBe(true);
+    expect(isSystemEvent('  [System Message] with leading whitespace')).toBe(true);
+    expect(isSystemEvent('\t[System Message] tab-prefixed')).toBe(true);
+  });
+
+  it('does not falsely detect [System Message] mid-sentence', () => {
+    expect(isSystemEvent('Hello [System Message] this is not a system event')).toBe(false);
+  });
 });
 
 describe('stripWebhookScaffolding', () => {

@@ -20,6 +20,18 @@ const SYSTEM_PATTERNS: RegExp[] = [
 
   // System event envelope: [source:xxx]
   /^\[source:\s*\w+\]/i,
+
+  // OpenClaw subagent completion notifications
+  /^\[System Message\]/i,
+
+  // Queued announce messages (batched system messages)
+  /^\[Queued announce messages/i,
+
+  // Gateway system notifications (e.g. "System: [2026-02-18 ...] WhatsApp gateway connected.")
+  /^System:\s*\[\d{4}-\d{2}-\d{2}/,
+
+  // Pre-compaction memory flush prompts
+  /^Pre-compaction memory flush/i,
 ];
 
 export function isSystemEvent(text: string): boolean {
