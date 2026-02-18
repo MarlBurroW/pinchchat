@@ -14,7 +14,7 @@ import { copyToClipboard } from '../lib/clipboard';
 import { Bot, User, Wrench, Copy, Check, CheckCheck, RefreshCw, Zap, Info, Webhook, Braces, Clock, AlertCircle, Bookmark, ChevronDown, Reply } from 'lucide-react';
 import { t, getLocale } from '../lib/i18n';
 import { useLocale } from '../hooks/useLocale';
-import { stripWebhookScaffolding, hasWebhookScaffolding } from '../lib/systemEvent';
+import { stripWebhookScaffolding, hasWebhookScaffolding, hasWebchatEnvelope, stripWebchatEnvelope } from '../lib/systemEvent';
 // ChevronDown, ChevronRight, Wrench still used by InternalOnlyMessage
 
 /** Avatar image with fallback to Bot icon on load error */
@@ -454,26 +454,38 @@ export const ChatMessageComponent = memo(function ChatMessageComponent({ message
   const isLight = resolvedTheme === 'light';
   const [showRawJson, setShowRawJson] = useState(false);
 
-  // Strip webhook/hook scaffolding from user messages before rendering
+  // Strip webhook/hook scaffolding and webchat envelope from user messages before rendering
   const message = useMemo(() => {
     if (rawMessage.role !== 'user') return rawMessage;
     const content = rawMessage.content || '';
     const textBlocks = getTextBlocks(rawMessage.blocks);
-    const contentHasScaffolding = hasWebhookScaffolding(content);
-    const anyBlockHasScaffolding = textBlocks.some(b =>
-      hasWebhookScaffolding((b as Extract<MessageBlock, { type: 'text' }>).text)
-    );
-    if (!contentHasScaffolding && !anyBlockHasScaffolding) return rawMessage;
+
+    // Helper: apply all applicable strip functions to a string
+    const stripAll = (text: string): string => {
+      let result = text;
+      if (hasWebhookScaffolding(result)) result = stripWebhookScaffolding(result);
+      if (hasWebchatEnvelope(result)) result = stripWebchatEnvelope(result);
+      return result;
+    };
+
+    const contentNeedsStrip = hasWebhookScaffolding(content) || hasWebchatEnvelope(content);
+    const anyBlockNeedsStrip = textBlocks.some(b => {
+      const t = (b as Extract<MessageBlock, { type: 'text' }>).text;
+      return hasWebhookScaffolding(t) || hasWebchatEnvelope(t);
+    });
+
+    if (!contentNeedsStrip && !anyBlockNeedsStrip) return rawMessage;
+
     // Clean the content and blocks
     const cleaned: ChatMessageType = { ...rawMessage };
     if (cleaned.content) {
-      cleaned.content = stripWebhookScaffolding(cleaned.content);
+      cleaned.content = stripAll(cleaned.content);
     }
     if (cleaned.blocks.length > 0) {
       cleaned.blocks = cleaned.blocks.map(b => {
         if (b.type === 'text') {
           const tb = b as Extract<MessageBlock, { type: 'text' }>;
-          return { ...tb, text: stripWebhookScaffolding(tb.text) };
+          return { ...tb, text: stripAll(tb.text) };
         }
         return b;
       });
@@ -481,7 +493,7 @@ export const ChatMessageComponent = memo(function ChatMessageComponent({ message
     return cleaned;
   }, [rawMessage]);
 
-  const wasWebhookMessage = rawMessage !== message;
+  const wasWebhookMessage = rawMessage !== message && hasWebhookScaffolding(rawMessage.content || '');
 
   const isUser = message.role === 'user';
 

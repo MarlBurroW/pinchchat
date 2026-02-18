@@ -93,3 +93,45 @@ export function hasWebhookScaffolding(text: string): boolean {
   return /<<<EXTERNAL_UNTRUSTED_CONTENT>>>/.test(text) ||
     /---\s*SECURITY NOTICE\s*---/i.test(text);
 }
+
+/**
+ * Detect OpenClaw webchat envelope metadata in a user message.
+ *
+ * Pattern:
+ *   Conversation info (untrusted metadata):
+ *   ```json
+ *   { ... }
+ *   ```
+ *
+ *   [Wed 2026-02-18 14:06 UTC] actual message
+ */
+export function hasWebchatEnvelope(text: string): boolean {
+  return /Conversation info \(untrusted metadata\):/.test(text) ||
+    /^\[(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun) \d{4}-\d{2}-\d{2} \d{2}:\d{2} UTC\] /.test(text.trim());
+}
+
+/**
+ * Strip webchat envelope metadata from a user message, returning only the
+ * actual user text.
+ *
+ * Removes:
+ *  - "Conversation info (untrusted metadata):" header + trailing JSON code fence
+ *  - Timestamp prefix "[Wed 2026-02-18 14:06 UTC] "
+ */
+export function stripWebchatEnvelope(text: string): string {
+  let cleaned = text;
+
+  // Remove the "Conversation info (untrusted metadata):" block + JSON code fence
+  cleaned = cleaned.replace(
+    /Conversation info \(untrusted metadata\):\s*```json\s*[\s\S]*?```\s*/,
+    ''
+  );
+
+  // Strip timestamp prefix: [Wed 2026-02-18 14:06 UTC]
+  cleaned = cleaned.replace(
+    /^\[(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun) \d{4}-\d{2}-\d{2} \d{2}:\d{2} UTC\] /,
+    ''
+  );
+
+  return cleaned.trim() || text.trim();
+}
