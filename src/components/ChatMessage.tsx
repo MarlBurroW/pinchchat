@@ -418,6 +418,7 @@ function getPlainText(message: ChatMessageType): string {
 
 /** System event displayed as a subtle inline notification */
 function SystemEventMessage({ message }: { message: ChatMessageType }) {
+  const [expanded, setExpanded] = useState(false);
   const text = message.content || getTextBlocks(message.blocks).map(b => (b as Extract<MessageBlock, { type: 'text' }>).text).join(' ');
   // Trim leading brackets like [cron:xxx] or [EVENT] for cleaner display
   const display = text.replace(/^\[.*?\]\s*/, '').trim() || text.trim();
@@ -425,12 +426,22 @@ function SystemEventMessage({ message }: { message: ChatMessageType }) {
 
   return (
     <div className="animate-fade-in flex items-center justify-center gap-2 px-4 py-1.5 my-0.5">
-      <div className="flex items-center gap-1.5 max-w-[85%] rounded-full px-3 py-1 bg-pc-elevated/30 border border-pc-border">
-        <Zap className="h-3 w-3 text-pc-text-muted shrink-0" />
-        <span className="text-[11px] font-medium text-pc-text-muted shrink-0">{label}</span>
-        <span className="text-[11px] text-pc-text-muted truncate">{display}</span>
-        {message.timestamp && (
-          <Timestamp ts={message.timestamp} className="text-[10px] text-pc-text-faint shrink-0 ml-1" />
+      <div
+        className={`flex flex-col max-w-[85%] bg-pc-elevated/30 border border-pc-border cursor-pointer hover:bg-pc-elevated/50 transition-colors ${expanded ? 'rounded-xl' : 'rounded-full'}`}
+        onClick={() => setExpanded(v => !v)}
+      >
+        <div className="flex items-center gap-1.5 px-3 py-1">
+          <Zap className="h-3 w-3 text-pc-text-muted shrink-0" />
+          <span className="text-[11px] font-medium text-pc-text-muted shrink-0">{label}</span>
+          <ChevronDown className={`h-3 w-3 text-pc-text-muted shrink-0 transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`} />
+          {message.timestamp && (
+            <Timestamp ts={message.timestamp} className="text-[10px] text-pc-text-faint shrink-0 ml-1" />
+          )}
+        </div>
+        {expanded && (
+          <div className="px-3 pb-2 pt-0">
+            <p className="text-[11px] text-pc-text-muted whitespace-pre-wrap break-words">{display}</p>
+          </div>
         )}
       </div>
     </div>
