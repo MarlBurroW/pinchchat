@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import { ChevronRight, ChevronDown, Brain } from 'lucide-react';
 import { useT } from '../hooks/useLocale';
 
-export function ThinkingBlock({ text }: { text: string }) {
+export const ThinkingBlock = memo(function ThinkingBlock({ text }: { text: string }) {
   const t = useT();
   const [open, setOpen] = useState(false);
 
@@ -25,4 +25,4 @@ export function ThinkingBlock({ text }: { text: string }) {
       )}
     </div>
   );
-}
+});

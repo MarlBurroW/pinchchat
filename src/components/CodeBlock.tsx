@@ -1,4 +1,4 @@
-import { useState, useCallback, type HTMLAttributes, type ReactElement } from 'react';
+import { useState, useCallback, memo, type HTMLAttributes, type ReactElement } from 'react';
 import { Check, Copy, Hash, WrapText, AlignLeft, ChevronDown, ChevronUp } from 'lucide-react';
 import { copyToClipboard } from '../lib/clipboard';
 
@@ -49,7 +49,7 @@ const LINE_THRESHOLD = 3; // Only show line numbers for blocks with more than th
 const COLLAPSE_THRESHOLD = 25; // Collapse code blocks longer than this
 const COLLAPSE_PREVIEW_LINES = 10; // Lines to show when collapsed
 
-export function CodeBlock(props: HTMLAttributes<HTMLPreElement>) {
+export const CodeBlock = memo(function CodeBlock(props: HTMLAttributes<HTMLPreElement>) {
   const [copied, setCopied] = useState(false);
   const [showLineNumbers, setShowLineNumbers] = useState(() => {
     const stored = localStorage.getItem(LINE_NUMBER_KEY);
@@ -181,4 +181,4 @@ export function CodeBlock(props: HTMLAttributes<HTMLPreElement>) {
       </button>
     </div>
   );
-}
+});

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, memo } from 'react';
 import { X, ImageOff } from 'lucide-react';
 
 interface ImageBlockProps {
@@ -41,7 +41,7 @@ function Lightbox({ src, alt, onClose }: ImageBlockProps & { onClose: () => void
   );
 }
 
-export function ImageBlock({ src, alt }: ImageBlockProps) {
+export const ImageBlock = memo(function ImageBlock({ src, alt }: ImageBlockProps) {
   const [lightbox, setLightbox] = useState(false);
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -81,6 +81,6 @@ export function ImageBlock({ src, alt }: ImageBlockProps) {
       {lightbox && <Lightbox src={src} alt={alt} onClose={() => setLightbox(false)} />}
     </>
   );
-}
+});
 
 // buildImageSrc moved to ../lib/image.ts

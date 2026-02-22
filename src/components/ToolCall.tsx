@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
+import { useState, useCallback, useMemo, useEffect, useRef, memo } from 'react';
 import { ChevronRight, ChevronDown, Check, Copy, WrapText, AlignLeft } from 'lucide-react';
 import hljs from '../lib/highlight';
 import { copyToClipboard } from '../lib/clipboard';
@@ -260,7 +260,7 @@ function extractImageFromResult(result: string): { src: string; remaining: strin
   return null;
 }
 
-export function ToolCall({ name, input, result }: { name: string; input?: Record<string, unknown>; result?: string }) {
+export const ToolCall = memo(function ToolCall({ name, input, result }: { name: string; input?: Record<string, unknown>; result?: string }) {
   const t = useT();
   const [open, setOpen] = useState(false);
   const [wrap, setWrap] = useState(true);
@@ -359,4 +359,4 @@ export function ToolCall({ name, input, result }: { name: string; input?: Record
       )}
     </div>
   );
-}
+});
