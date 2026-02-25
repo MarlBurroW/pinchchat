@@ -107,6 +107,8 @@ export function LoginScreen({ onConnect, error, isConnecting }: Props) {
                   ? 'border-[var(--pc-accent-dim)] bg-[var(--pc-accent-dim)]/10 text-pc-text'
                   : 'border-pc-border bg-pc-elevated/30 text-pc-text-muted hover:bg-pc-elevated/50'
               }`}
+              aria-label={t('login.authToken')}
+              aria-pressed={authMode === 'token'}
             >
               <Key size={14} />
               {t('login.authToken')}
@@ -120,6 +122,8 @@ export function LoginScreen({ onConnect, error, isConnecting }: Props) {
                   ? 'border-[var(--pc-accent-dim)] bg-[var(--pc-accent-dim)]/10 text-pc-text'
                   : 'border-pc-border bg-pc-elevated/30 text-pc-text-muted hover:bg-pc-elevated/50'
               }`}
+              aria-label={t('login.authPassword')}
+              aria-pressed={authMode === 'password'}
             >
               <Lock size={14} />
               {t('login.authPassword')}
@@ -159,6 +163,8 @@ export function LoginScreen({ onConnect, error, isConnecting }: Props) {
               type="button"
               onClick={() => setShowAdvanced(!showAdvanced)}
               className="flex items-center gap-1.5 text-xs text-pc-text-muted hover:text-pc-text transition-colors"
+              aria-expanded={showAdvanced}
+              aria-label={t('login.advanced')}
             >
               <ChevronDown size={14} className={`transition-transform ${showAdvanced ? 'rotate-0' : '-rotate-90'}`} />
               {t('login.advanced')}
@@ -194,6 +200,7 @@ export function LoginScreen({ onConnect, error, isConnecting }: Props) {
             type="submit"
             disabled={!isValidWsUrl || !token.trim() || isConnecting}
             className="w-full rounded-xl bg-gradient-to-r from-cyan-500 to-violet-500 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-cyan-500/20 hover:shadow-cyan-500/30 hover:brightness-110 disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
+            aria-label={isConnecting ? t('login.connecting') : t('login.connect')}
           >
             {isConnecting ? (
               <>
