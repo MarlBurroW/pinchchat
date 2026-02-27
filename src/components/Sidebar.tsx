@@ -343,7 +343,7 @@ export function Sidebar({ sessions, activeSession, onSwitch, onDelete, onSplit, 
 
   return (
     <>
-      {open && <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden" onClick={onClose} />}
+      {open && <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden" onClick={onClose} onKeyDown={(e) => { if (e.key === 'Escape') onClose(); }} role="button" tabIndex={-1} aria-label="Close sidebar" />}
       <aside role="navigation" aria-label="Sessions" className={`fixed lg:relative top-0 left-0 h-full bg-[var(--pc-bg-base)]/95 border-r border-pc-border z-50 transform ${dragging ? '' : 'transition-transform'} lg:translate-x-0 ${open ? 'translate-x-0' : '-translate-x-full'} flex flex-col backdrop-blur-xl`} style={{ width: `${width}px` }}>
         <div className="h-14 flex items-center justify-between px-4 border-b border-pc-border">
           <div className="flex items-center gap-2">
@@ -657,7 +657,7 @@ export function Sidebar({ sessions, activeSession, onSwitch, onDelete, onSplit, 
       {/* Delete confirmation dialog */}
       {confirmDelete && (
         <>
-          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[70]" onClick={() => setConfirmDelete(null)} />
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[70]" onClick={() => setConfirmDelete(null)} onKeyDown={(e) => { if (e.key === 'Escape') setConfirmDelete(null); }} role="button" tabIndex={-1} aria-label="Cancel deletion" />
           <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[80] w-72 bg-[var(--pc-bg-base)] border border-pc-border-strong rounded-2xl p-5 shadow-2xl">
             <p className="text-sm text-pc-text mb-4">{t('sidebar.deleteConfirm')}</p>
             <div className="flex gap-2 justify-end">
