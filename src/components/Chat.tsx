@@ -18,8 +18,10 @@ interface Props {
   status: ConnectionStatus;
   sessionKey?: string;
   onSend: (text: string, attachments?: Array<{ mimeType: string; fileName: string; content: string }>) => void;
+  onNewSession?: () => Promise<void>;
   onAbort: () => void;
   agentAvatarUrl?: string;
+  agentName?: string;
 }
 
 function isNoReply(msg: ChatMessage): boolean {
@@ -70,7 +72,7 @@ function getDateKey(ts: number): string {
 /** Threshold in pixels — if the user is within this distance of the bottom, auto-scroll */
 const SCROLL_THRESHOLD = 150;
 
-export function Chat({ messages, isGenerating, isLoadingHistory, status, sessionKey, onSend, onAbort, agentAvatarUrl }: Props) {
+export function Chat({ messages, isGenerating, isLoadingHistory, status, sessionKey, onSend, onNewSession, onAbort, agentAvatarUrl, agentName }: Props) {
   const t = useT();
   const bottomRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -206,6 +208,8 @@ export function Chat({ messages, isGenerating, isLoadingHistory, status, session
   }, [messages]);
 
   const showTyping = isGenerating && !hasStreamedText(messages);
+  const sessionAgentId = sessionKey?.match(/^agent:([^:]+):/)?.[1];
+  const welcomeTitle = agentName || sessionAgentId || t('chat.welcome');
 
   const { globalState, collapseAll, expandAll } = useToolCollapse();
   const { toggle: toggleBookmark, isBookmarked, getForSession: getBookmarks } = useBookmarks();
@@ -291,7 +295,7 @@ export function Chat({ messages, isGenerating, isLoadingHistory, status, session
                   <Bot className="h-8 w-8 text-pc-accent-light" />
                 </div>
               </div>
-              <div className="text-lg text-pc-text font-semibold">{t('chat.welcome')}</div>
+              <div className="text-lg text-pc-text font-semibold">{welcomeTitle}</div>
               <div className="text-sm mt-1 text-pc-text-muted">{t('chat.welcomeSub')}</div>
               <div className="mt-8 flex flex-col items-center gap-3 max-w-md w-full">
                 <div className="flex items-center gap-1.5 text-xs text-pc-text-faint">
@@ -422,7 +426,7 @@ export function Chat({ messages, isGenerating, isLoadingHistory, status, session
           </div>
         )}
       </div>
-      <ChatInput onSend={handleSend} onAbort={onAbort} isGenerating={isGenerating} disabled={status !== 'connected'} sessionKey={sessionKey} replyTo={replyTo} onCancelReply={() => setReplyTo(null)} />
+      <ChatInput onSend={handleSend} onNewSession={onNewSession} onAbort={onAbort} isGenerating={isGenerating} disabled={status !== 'connected'} sessionKey={sessionKey} replyTo={replyTo} onCancelReply={() => setReplyTo(null)} />
     </div>
   );
 }

@@ -8,7 +8,7 @@ import { LoginScreen } from './components/LoginScreen';
 import { ConnectionBanner } from './components/ConnectionBanner';
 import { KeyboardShortcuts } from './components/KeyboardShortcuts';
 import { ToolCollapseProvider } from './contexts/ToolCollapseContext';
-import { sessionDisplayName } from './lib/sessionName';
+import { sessionDisplayName, extractAgentIdFromKey, formatAgentId } from './lib/sessionName';
 import { X } from 'lucide-react';
 import { useT } from './hooks/useLocale';
 import { useSwipeSidebar } from './hooks/useSwipeSidebar';
@@ -29,7 +29,7 @@ function getSavedSplitRatio(): number {
 export default function App() {
   const {
     status, messages, sessions, activeSession, isGenerating, isLoadingHistory,
-    sendMessage, abort, switchSession, deleteSession,
+    sendMessage, abort, switchSession, deleteSession, createNewSession,
     authenticated, login, logout, connectError, isConnecting, agentIdentity,
     getClient, addEventListener,
   } = useGateway();
@@ -40,6 +40,19 @@ export default function App() {
   const splitRatioRef = useRef(splitRatio);
   const secondary = useSecondarySession(getClient, addEventListener, splitSession);
   const t = useT();
+  const resolveAgentDisplayName = useCallback((sessionKey: string | null | undefined): string | undefined => {
+    if (!sessionKey) return agentIdentity?.name;
+    const session = sessions.find((s) => s.key === sessionKey);
+    const sessionAgentId = session?.agentId || extractAgentIdFromKey(sessionKey);
+    const connectedAgentId = agentIdentity?.agentId;
+
+    // agent.identity.get is gateway-level (typically main agent), not per-session.
+    // For sub-agent sessions, prefer the session agent id to avoid showing the main agent name.
+    if (sessionAgentId && connectedAgentId && sessionAgentId !== connectedAgentId) {
+      return formatAgentId(sessionAgentId) || sessionAgentId;
+    }
+    return agentIdentity?.name || (sessionAgentId && formatAgentId(sessionAgentId)) || sessionAgentId;
+  }, [agentIdentity?.name, agentIdentity?.agentId, sessions]);
   const handleSplit = useCallback((key: string) => {
     setSplitSession(prev => prev === key ? null : key);
   }, []);
@@ -181,10 +194,10 @@ export default function App() {
       <div ref={splitContainerRef} className="flex-1 flex min-w-0" aria-hidden={sidebarOpen ? true : undefined}>
         {/* Primary pane */}
         <main className="flex flex-col min-w-0" style={splitSession ? { width: `${splitRatio}%` } : { flex: 1 }} aria-label={t('app.mainChat')}>
-          <Header status={status} sessionKey={activeSession} onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} activeSessionData={sessions.find(s => s.key === activeSession)} onLogout={logout} soundEnabled={soundEnabled} onToggleSound={toggleSound} messages={messages} agentAvatarUrl={agentIdentity?.avatar} agentName={agentIdentity?.name} onCompact={handleCompact} />
+          <Header status={status} sessionKey={activeSession} onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} activeSessionData={sessions.find(s => s.key === activeSession)} onLogout={logout} soundEnabled={soundEnabled} onToggleSound={toggleSound} messages={messages} agentAvatarUrl={agentIdentity?.avatar} agentName={resolveAgentDisplayName(activeSession)} onCompact={handleCompact} />
           <ConnectionBanner status={status} />
           <Suspense fallback={<div className="flex-1 flex items-center justify-center text-pc-text-muted"><div className="animate-pulse text-sm">Loading…</div></div>}>
-            <Chat messages={messages} isGenerating={isGenerating} isLoadingHistory={isLoadingHistory} status={status} sessionKey={activeSession} onSend={sendMessage} onAbort={abort} agentAvatarUrl={agentIdentity?.avatar} />
+            <Chat messages={messages} isGenerating={isGenerating} isLoadingHistory={isLoadingHistory} status={status} sessionKey={activeSession} onSend={sendMessage} onNewSession={createNewSession} onAbort={abort} agentAvatarUrl={agentIdentity?.avatar} agentName={resolveAgentDisplayName(activeSession)} />
           </Suspense>
         </main>
         {/* Split divider + secondary pane */}
@@ -212,7 +225,7 @@ export default function App() {
                 </button>
               </div>
               <Suspense fallback={<div className="flex-1 flex items-center justify-center text-pc-text-muted"><div className="animate-pulse text-sm">Loading…</div></div>}>
-                <Chat messages={secondary.messages} isGenerating={secondary.isGenerating} isLoadingHistory={secondary.isLoadingHistory} status={status} sessionKey={splitSession} onSend={secondary.sendMessage} onAbort={secondary.abort} agentAvatarUrl={agentIdentity?.avatar} />
+                <Chat messages={secondary.messages} isGenerating={secondary.isGenerating} isLoadingHistory={secondary.isLoadingHistory} status={status} sessionKey={splitSession} onSend={secondary.sendMessage} onNewSession={createNewSession} onAbort={secondary.abort} agentAvatarUrl={agentIdentity?.avatar} agentName={resolveAgentDisplayName(splitSession)} />
               </Suspense>
             </section>
           </>

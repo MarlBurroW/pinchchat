@@ -24,6 +24,7 @@ export interface ReplyContext {
 
 interface Props {
   onSend: (text: string, attachments?: Array<{ mimeType: string; fileName: string; content: string }>) => void;
+  onNewSession?: () => Promise<void>;
   onAbort: () => void;
   isGenerating: boolean;
   disabled: boolean;
@@ -94,7 +95,7 @@ function formatSize(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)}MB`;
 }
 
-export function ChatInput({ onSend, onAbort, isGenerating, disabled, sessionKey, replyTo, onCancelReply }: Props) {
+export function ChatInput({ onSend, onNewSession, onAbort, isGenerating, disabled, sessionKey, replyTo, onCancelReply }: Props) {
   const t = useT();
   const { sendOnEnter, toggle: toggleSendShortcut } = useSendShortcut();
   const [text, setText] = useState('');
@@ -177,6 +178,17 @@ export function ChatInput({ onSend, onAbort, isGenerating, disabled, sessionKey,
   const handleSubmit = () => {
     const trimmed = text.trim();
     if ((!trimmed && files.length === 0) || disabled) return;
+
+    if ((trimmed === '/new' || trimmed.startsWith('/new ')) && onNewSession) {
+      void onNewSession();
+      setText('');
+      setFiles([]);
+      setShowSlash(false);
+      onCancelReply?.();
+      if (sessionKey) draftsRef.current.delete(sessionKey);
+      return;
+    }
+
     const attachments = files.length > 0 ? files.map(f => ({
       mimeType: f.mimeType,
       fileName: f.file.name,

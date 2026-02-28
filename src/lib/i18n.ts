@@ -189,6 +189,7 @@ const en = {
   'slash.model': 'Switch model for this session',
   'slash.compact': 'Compact conversation context',
   'slash.reset': 'Reset the session',
+  'slash.new': 'Create a new chat session',
   'slash.help': 'Show available commands',
 } as const;
 
@@ -358,6 +359,7 @@ const fr: Record<keyof typeof en, string> = {
   'slash.model': 'Changer de modèle pour cette session',
   'slash.compact': 'Compacter le contexte',
   'slash.reset': 'Réinitialiser la session',
+  'slash.new': 'Créer une nouvelle session de chat',
   'slash.help': 'Afficher les commandes disponibles',
 };
 
@@ -527,6 +529,7 @@ const es: Record<keyof typeof en, string> = {
   'slash.model': 'Cambiar modelo para esta sesión',
   'slash.compact': 'Compactar contexto de conversación',
   'slash.reset': 'Reiniciar la sesión',
+  'slash.new': 'Crear una nueva sesión de chat',
   'slash.help': 'Mostrar comandos disponibles',
 };
 
@@ -698,6 +701,7 @@ const de: Record<keyof typeof en, string> = {
   'slash.model': 'Modell für diese Sitzung wechseln',
   'slash.compact': 'Gesprächskontext kompaktieren',
   'slash.reset': 'Sitzung zurücksetzen',
+  'slash.new': 'Neue Chat-Sitzung erstellen',
   'slash.help': 'Verfügbare Befehle anzeigen',
 };
 
@@ -867,6 +871,7 @@ const ja: Record<keyof typeof en, string> = {
   'slash.model': 'このセッションのモデルを変更',
   'slash.compact': '会話コンテキストをコンパクト化',
   'slash.reset': 'セッションをリセット',
+  'slash.new': '新しいチャットセッションを作成',
   'slash.help': '利用可能なコマンドを表示',
 };
 
@@ -1036,6 +1041,7 @@ const pt: Record<keyof typeof en, string> = {
   'slash.model': 'Alterar modelo desta sessão',
   'slash.compact': 'Compactar contexto da conversa',
   'slash.reset': 'Redefinir sessão',
+  'slash.new': 'Criar uma nova sessão de chat',
   'slash.help': 'Mostrar comandos disponíveis',
 };
 
@@ -1205,6 +1211,7 @@ const zh: Record<keyof typeof en, string> = {
   'slash.model': '切换当前会话模型',
   'slash.compact': '压缩会话上下文',
   'slash.reset': '重置会话',
+  'slash.new': '创建新的聊天会话',
   'slash.help': '显示可用命令',
 };
 
@@ -1374,6 +1381,7 @@ const it: Record<keyof typeof en, string> = {
   'slash.model': 'Cambia modello per questa sessione',
   'slash.compact': 'Compatta il contesto della conversazione',
   'slash.reset': 'Reimposta sessione',
+  'slash.new': 'Crea una nuova sessione chat',
   'slash.help': 'Mostra comandi disponibili',
 };
 
