@@ -47,3 +47,22 @@ function cleanSessionKey(key: string): string {
   }
   return stripped;
 }
+
+const AGENT_KEY_RE = /^agent:([^:]+):/;
+
+export function extractAgentIdFromKey(key: string): string | undefined {
+  return key.match(AGENT_KEY_RE)?.[1];
+}
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-/i;
+
+/**
+ * Turn a raw agent ID like "my-cool_agent" into "My Cool Agent".
+ * Returns undefined for UUIDs / hex-heavy IDs that aren't human-readable.
+ */
+export function formatAgentId(id: string): string | undefined {
+  if (UUID_RE.test(id)) return undefined;
+  return id
+    .replace(/[-_]+/g, ' ')
+    .replace(/\b\w/g, (c) => c.toUpperCase());
+}

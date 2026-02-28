@@ -5,6 +5,7 @@ import { getStoredCredentials, storeCredentials, clearCredentials, type AuthMode
 import { getOrCreateDeviceIdentity } from '../lib/deviceIdentity';
 import { isSystemEvent } from '../lib/systemEvent';
 import { getCachedMessages, setCachedMessages, mergeWithCache } from '../lib/messageCache';
+import { extractAgentIdFromKey } from '../lib/sessionName';
 import { extractText, extractThinking, type ChatPayloadMessage } from '../lib/messageExtract';
 import type { ChatMessage, MessageBlock, ConnectionStatus, Session, AgentIdentity } from '../types';
 
@@ -23,9 +24,12 @@ export function useGateway() {
   const messagesRef = useRef(messages);
   const activeSessionRef = useRef(activeSession);
 
+  const sessionsRef = useRef(sessions);
+
   // Sync refs in an effect to avoid ref writes during render
   useEffect(() => { messagesRef.current = messages; }, [messages]);
   useEffect(() => { activeSessionRef.current = activeSession; }, [activeSession]);
+  useEffect(() => { sessionsRef.current = sessions; }, [sessions]);
   const currentRunIdRef = useRef<string | null>(null);
   const [activeSessions, setActiveSessions] = useState<Set<string>>(new Set());
   const [unreadSessions, setUnreadSessions] = useState<Map<string, number>>(new Map());
@@ -480,6 +484,48 @@ export function useGateway() {
     loadHistory(key);
   }, [loadHistory]);
 
+  const createNewSession = useCallback(async () => {
+    const client = clientRef.current;
+    if (!client) return;
+
+    const currentKey = activeSessionRef.current;
+    const currentSession = sessionsRef.current.find((s) => s.key === currentKey);
+    const targetAgentId = currentSession?.agentId || extractAgentIdFromKey(currentKey) || 'main';
+    const targetChannel = currentSession?.channel || 'webchat';
+    const expectedPrefix = `agent:${targetAgentId}:`;
+
+    const fallbackKey = `${expectedPrefix}webchat-${Date.now()}`;
+    let nextKey = fallbackKey;
+
+    try {
+      const res = await client.send('sessions.create', {
+        channel: targetChannel,
+        agentId: targetAgentId,
+      }) as JsonPayload | undefined;
+      const fromRoot = (typeof res?.key === 'string' && res.key)
+        || (typeof res?.sessionKey === 'string' && res.sessionKey)
+        || null;
+      const nestedSession = (res?.session && typeof res.session === 'object') ? res.session as Record<string, unknown> : null;
+      const fromNested = (nestedSession && typeof nestedSession.key === 'string' && nestedSession.key)
+        || (nestedSession && typeof nestedSession.sessionKey === 'string' && nestedSession.sessionKey)
+        || null;
+
+      const returnedKey = (fromRoot || fromNested) as string | null;
+      if (returnedKey && returnedKey.startsWith(expectedPrefix)) {
+        nextKey = returnedKey;
+      }
+    } catch (err) {
+      console.warn('[createNewSession] sessions.create not supported, using fallback key', err);
+    }
+
+    switchSession(nextKey);
+    try {
+      await loadSessions();
+    } catch (err) {
+      console.warn('[createNewSession] failed to refresh session list', err);
+    }
+  }, [switchSession, loadSessions]);
+
   const login = useCallback((url: string, token: string, authMode: AuthMode = 'token', clientId?: string) => {
     setupClient(url, token, authMode, clientId);
   }, [setupClient]);
@@ -541,7 +587,7 @@ export function useGateway() {
 
   return {
     status, messages, sessions: enrichedSessions, activeSession, isGenerating, isLoadingHistory,
-    sendMessage, abort, switchSession, loadSessions, deleteSession,
+    sendMessage, abort, switchSession, createNewSession, loadSessions, deleteSession,
     authenticated, login, logout, connectError, isConnecting, agentIdentity,
     getClient, addEventListener,
   };

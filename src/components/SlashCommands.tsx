@@ -9,6 +9,7 @@ export interface SlashCommand {
 }
 
 const COMMANDS: SlashCommand[] = [
+  { command: '/new', descKey: 'slash.new' },
   { command: '/status', descKey: 'slash.status' },
   { command: '/reasoning', args: 'on|off|stream', descKey: 'slash.reasoning' },
   { command: '/verbose', args: 'on|off', descKey: 'slash.verbose' },
