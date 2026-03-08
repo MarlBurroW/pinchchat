@@ -207,6 +207,8 @@ export function ChatInput({ onSend, onNewSession, onAbort, isGenerating, disable
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
+      // Prevent sending when IME is composing (e.g., Chinese/Japanese input)
+      if (e.isComposing) return;
       if (sendOnEnter) {
         // Enter sends, Shift+Enter for newline
         if (!e.shiftKey && !e.ctrlKey && !e.metaKey) {
