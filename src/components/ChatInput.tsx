@@ -98,6 +98,7 @@ export function ChatInput({ onSend, onNewSession, onAbort, isGenerating, disable
   const [files, setFiles] = useState<FileAttachment[]>([]);
   const [isDragOver, setIsDragOver] = useState(false);
   const [showPreview, setShowPreview] = useState(() => localStorage.getItem('pinchchat-md-preview') === '1');
+  const [isComposing, setIsComposing] = useState(false);
   const [showSlash, setShowSlash] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -208,7 +209,7 @@ export function ChatInput({ onSend, onNewSession, onAbort, isGenerating, disable
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       // Prevent sending when IME is composing (e.g., Chinese/Japanese input)
-      if (e.isComposing) return;
+      if (isComposing) return;
       if (sendOnEnter) {
         // Enter sends, Shift+Enter for newline
         if (!e.shiftKey && !e.ctrlKey && !e.metaKey) {
@@ -385,6 +386,8 @@ export function ChatInput({ onSend, onNewSession, onAbort, isGenerating, disable
               value={text}
               onChange={(e) => { setText(e.target.value); setShowSlash(shouldShowSlashMenu(e.target.value)); }}
               onKeyDown={handleKeyDown}
+              onCompositionStart={() => setIsComposing(true)}
+              onCompositionEnd={() => setIsComposing(false)}
               onPaste={handlePaste}
               placeholder={t('chat.inputPlaceholder')}
               aria-label={t('chat.inputLabel')}
