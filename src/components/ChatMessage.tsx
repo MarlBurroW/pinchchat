@@ -313,6 +313,12 @@ function RawJsonPanel({ message }: { message: ChatMessageType }) {
   );
 }
 
+interface SelectionActionState {
+  text: string;
+  top: number;
+  left: number;
+}
+
 /** Extract plain text from message blocks for clipboard copy */
 function getPlainText(message: ChatMessageType): string {
   if (message.blocks.length > 0) {
@@ -353,11 +359,14 @@ function SystemEventMessage({ message }: { message: ChatMessageType }) {
   );
 }
 
-export const ChatMessageComponent = memo(function ChatMessageComponent({ message: rawMessage, onRetry, onReply, agentAvatarUrl, isFirstInGroup = true, isBookmarked = false, onToggleBookmark }: { message: ChatMessageType; onRetry?: (text: string) => void; onReply?: (preview: string) => void; agentAvatarUrl?: string; isFirstInGroup?: boolean; isBookmarked?: boolean; onToggleBookmark?: () => void }) {
+export const ChatMessageComponent = memo(function ChatMessageComponent({ message: rawMessage, onRetry, onReply, onUseSelection, agentAvatarUrl, isFirstInGroup = true, isBookmarked = false, onToggleBookmark }: { message: ChatMessageType; onRetry?: (text: string) => void; onReply?: (preview: string) => void; onUseSelection?: (text: string) => void; agentAvatarUrl?: string; isFirstInGroup?: boolean; isBookmarked?: boolean; onToggleBookmark?: () => void }) {
   useLocale(); // re-render on locale change
   const { resolvedTheme } = useTheme();
   const isLight = resolvedTheme === 'light';
   const [showRawJson, setShowRawJson] = useState(false);
+  const [selectionAction, setSelectionAction] = useState<SelectionActionState | null>(null);
+  const bubbleRef = useRef<HTMLDivElement>(null);
+  const selectionButtonRef = useRef<HTMLButtonElement>(null);
 
   // Strip webhook/hook scaffolding and webchat envelope from user messages before rendering
   const message = useMemo(() => {
@@ -402,6 +411,69 @@ export const ChatMessageComponent = memo(function ChatMessageComponent({ message
 
   const isUser = message.role === 'user';
 
+  const clearSelectionAction = useCallback(() => {
+    setSelectionAction(null);
+  }, []);
+
+  const updateSelectionAction = useCallback(() => {
+    if (isUser || message.isStreaming || !onUseSelection) {
+      setSelectionAction(null);
+      return;
+    }
+
+    const selection = window.getSelection();
+    const bubble = bubbleRef.current;
+    if (!selection || !bubble || selection.rangeCount === 0 || selection.isCollapsed) {
+      setSelectionAction(null);
+      return;
+    }
+
+    const text = selection.toString().trim();
+    if (!text || text.length > 1500) {
+      setSelectionAction(null);
+      return;
+    }
+
+    const range = selection.getRangeAt(0);
+    const common = range.commonAncestorContainer;
+    if (!bubble.contains(common.nodeType === Node.TEXT_NODE ? common.parentNode : common)) {
+      setSelectionAction(null);
+      return;
+    }
+
+    const rect = range.getBoundingClientRect();
+    if (!rect.width && !rect.height) {
+      setSelectionAction(null);
+      return;
+    }
+
+    setSelectionAction({
+      text,
+      top: Math.max(12, rect.top - 40),
+      left: rect.left + (rect.width / 2),
+    });
+  }, [isUser, message.isStreaming, onUseSelection]);
+
+  useEffect(() => {
+    if (!onUseSelection || isUser) return;
+
+    const handleSelectionChange = () => {
+      requestAnimationFrame(updateSelectionAction);
+    };
+    const handlePointerDown = (e: MouseEvent) => {
+      if (selectionButtonRef.current?.contains(e.target as Node)) return;
+      if (bubbleRef.current?.contains(e.target as Node)) return;
+      clearSelectionAction();
+    };
+
+    document.addEventListener('selectionchange', handleSelectionChange);
+    document.addEventListener('mousedown', handlePointerDown);
+    return () => {
+      document.removeEventListener('selectionchange', handleSelectionChange);
+      document.removeEventListener('mousedown', handlePointerDown);
+    };
+  }, [clearSelectionAction, isUser, onUseSelection, updateSelectionAction]);
+
   // System events render as subtle inline notifications
   if (message.isSystemEvent) {
     return <SystemEventMessage message={rawMessage} />;
@@ -432,13 +504,18 @@ export const ChatMessageComponent = memo(function ChatMessageComponent({ message
 
       {/* Bubble */}
       <div className={`min-w-0 max-w-[80%] ${isUser ? 'text-right' : ''}`}>
-        <div className={`group relative inline-block text-left rounded-3xl px-4 py-3 text-sm leading-relaxed max-w-full overflow-hidden ${
+        <div
+          ref={bubbleRef}
+          onMouseUp={updateSelectionAction}
+          onKeyUp={updateSelectionAction}
+          className={`group relative inline-block text-left rounded-3xl px-4 py-3 text-sm leading-relaxed max-w-full overflow-hidden ${
           isUser
             ? (isLight
                 ? 'bg-[rgba(var(--pc-accent-rgb),0.12)] text-pc-text border border-[rgba(var(--pc-accent-rgb),0.3)]'
                 : 'bg-[rgba(var(--pc-accent-rgb),0.08)] text-pc-text border border-[rgba(var(--pc-accent-rgb),0.2)]')
             : 'bg-pc-elevated/40 text-pc-text border border-pc-border shadow-[0_0_0_1px_rgba(255,255,255,0.03)]'
-        }`}>
+        }`}
+        >
           {/* User-visible text */}
           {!isUser ? (
             <CollapsibleContent content={message.content || ''} isStreaming={message.isStreaming}>
@@ -530,6 +607,30 @@ export const ChatMessageComponent = memo(function ChatMessageComponent({ message
             <RawJsonToggle isOpen={showRawJson} onToggle={() => setShowRawJson(o => !o)} />
           </div>
         </div>
+        {!isUser && selectionAction && onUseSelection && createPortal(
+          <button
+            ref={selectionButtonRef}
+            onMouseDown={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+            }}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onUseSelection(selectionAction.text);
+              window.getSelection()?.removeAllRanges();
+              clearSelectionAction();
+            }}
+            className="fixed z-[9999] -translate-x-1/2 inline-flex items-center gap-2 rounded-2xl border border-white/8 bg-[rgba(26,26,29,0.96)] px-3.5 py-2 text-[13px] font-medium text-white shadow-[0_12px_28px_rgba(0,0,0,0.38)] backdrop-blur-xl transition-all hover:bg-[rgba(36,36,40,0.98)]"
+            style={{ top: selectionAction.top, left: selectionAction.left }}
+            aria-label={t('message.askInChat')}
+            title={t('message.askInChat')}
+          >
+            <span className="text-base leading-none text-white/90">❞</span>
+            <span>{t('message.askInChat')}</span>
+          </button>,
+          document.body
+        )}
         {(message.timestamp || wasWebhookMessage || isBookmarked) && (
           <div className={`mt-1 flex items-center gap-1.5 text-[11px] text-pc-text-muted ${isUser ? 'justify-end pr-2' : 'pl-2'}`}>
             {isBookmarked && (

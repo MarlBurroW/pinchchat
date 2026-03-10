@@ -18,6 +18,11 @@ export interface ReplyContext {
   preview: string;
 }
 
+export interface ComposerInsertRequest {
+  id: string;
+  text: string;
+}
+
 interface Props {
   onSend: (text: string, attachments?: Array<{ mimeType: string; fileName: string; content: string }>) => void;
   onNewSession?: () => Promise<void>;
@@ -27,6 +32,7 @@ interface Props {
   sessionKey?: string;
   replyTo?: ReplyContext | null;
   onCancelReply?: () => void;
+  insertRequest?: ComposerInsertRequest | null;
 }
 
 const MAX_BASE64_CHARS = 300 * 1024; // ~225KB real, well under 512KB WS limit (JSON overhead + base64 bloat)
@@ -91,7 +97,15 @@ function formatSize(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)}MB`;
 }
 
-export function ChatInput({ onSend, onNewSession, onAbort, isGenerating, disabled, sessionKey, replyTo, onCancelReply }: Props) {
+function toQuotedContext(text: string): string {
+  return text
+    .trim()
+    .split('\n')
+    .map(line => `> ${line}`)
+    .join('\n');
+}
+
+export function ChatInput({ onSend, onNewSession, onAbort, isGenerating, disabled, sessionKey, replyTo, onCancelReply, insertRequest }: Props) {
   const t = useT();
   const { sendOnEnter, toggle: toggleSendShortcut } = useSendShortcut();
   const [text, setText] = useState('');
@@ -106,6 +120,7 @@ export function ChatInput({ onSend, onNewSession, onAbort, isGenerating, disable
   // Per-session draft storage
   const draftsRef = useRef<Map<string, string>>(new Map());
   const prevSessionRef = useRef<string | undefined>(sessionKey);
+  const lastInsertIdRef = useRef<string | null>(null);
 
   // Save draft to previous session and restore draft for new session
   useEffect(() => {
@@ -140,6 +155,30 @@ export function ChatInput({ onSend, onNewSession, onAbort, isGenerating, disable
       return () => clearTimeout(timer);
     }
   }, [sessionKey, disabled]);
+
+  useEffect(() => {
+    if (!insertRequest?.id || lastInsertIdRef.current === insertRequest.id) return;
+    lastInsertIdRef.current = insertRequest.id;
+
+    const quoted = toQuotedContext(insertRequest.text);
+    if (!quoted) return;
+
+    setText(prev => {
+      const next = prev.trim()
+        ? `${prev.replace(/\s*$/, '')}\n\n${quoted}\n\n`
+        : `${quoted}\n\n`;
+
+      requestAnimationFrame(() => {
+        const textarea = textareaRef.current;
+        if (!textarea) return;
+        textarea.focus();
+        const pos = next.length;
+        textarea.setSelectionRange(pos, pos);
+      });
+
+      return next;
+    });
+  }, [insertRequest]);
 
   const addFiles = useCallback(async (fileList: FileList | File[]) => {
     const newFiles: FileAttachment[] = [];

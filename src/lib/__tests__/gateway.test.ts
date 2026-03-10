@@ -318,7 +318,6 @@ describe('GatewayClient', () => {
     const mockIdentity: DeviceIdentity = {
       id: 'device-id-abc',
       publicKeyRaw: 'pubkey-raw-abc',
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       keyPair: { privateKey: {} as CryptoKey, publicKey: {} as CryptoKey },
     };
     gw.setDeviceIdentity(mockIdentity);

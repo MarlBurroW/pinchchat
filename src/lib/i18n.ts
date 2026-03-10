@@ -105,6 +105,7 @@ const en = {
   'message.metadata': 'Message details',
   'message.rawJson': 'Raw JSON',
   'message.hideRawJson': 'Hide raw JSON',
+  'message.askInChat': 'Ask in Chat',
 
   // Timestamps
   'time.yesterday': 'Yesterday',
@@ -295,6 +296,7 @@ const fr: Record<keyof typeof en, string> = {
   'message.metadata': 'Détails du message',
   'message.rawJson': 'JSON brut',
   'message.hideRawJson': 'Masquer le JSON brut',
+  'message.askInChat': 'Demander dans le chat',
 
   'time.yesterday': 'Hier',
   'time.today': "Aujourd'hui",
@@ -477,6 +479,7 @@ const es: Record<keyof typeof en, string> = {
   'message.metadata': 'Detalles del mensaje',
   'message.rawJson': 'JSON sin formato',
   'message.hideRawJson': 'Ocultar JSON sin formato',
+  'message.askInChat': 'Preguntar en el chat',
 
   'time.yesterday': 'Ayer',
   'time.today': 'Hoy',
@@ -661,6 +664,7 @@ const de: Record<keyof typeof en, string> = {
   'message.metadata': 'Nachrichtendetails',
   'message.rawJson': 'Roh-JSON',
   'message.hideRawJson': 'Roh-JSON ausblenden',
+  'message.askInChat': 'Im Chat fragen',
 
   'time.yesterday': 'Gestern',
   'time.today': 'Heute',
@@ -843,6 +847,7 @@ const ja: Record<keyof typeof en, string> = {
   'message.metadata': 'メッセージの詳細',
   'message.rawJson': '生JSON',
   'message.hideRawJson': '生JSONを非表示',
+  'message.askInChat': 'チャットで質問',
 
   'time.yesterday': '昨日',
   'time.today': '今日',
@@ -1025,6 +1030,7 @@ const pt: Record<keyof typeof en, string> = {
   'message.metadata': 'Detalhes da mensagem',
   'message.rawJson': 'JSON bruto',
   'message.hideRawJson': 'Ocultar JSON bruto',
+  'message.askInChat': 'Perguntar no chat',
 
   'time.yesterday': 'Ontem',
   'time.today': 'Hoje',
@@ -1207,6 +1213,7 @@ const zh: Record<keyof typeof en, string> = {
   'message.metadata': '消息详情',
   'message.rawJson': '原始 JSON',
   'message.hideRawJson': '隐藏原始 JSON',
+  'message.askInChat': '在聊天中提问',
 
   'time.yesterday': '昨天',
   'time.today': '今天',
@@ -1389,6 +1396,7 @@ const it: Record<keyof typeof en, string> = {
   'message.metadata': 'Dettagli messaggio',
   'message.rawJson': 'JSON grezzo',
   'message.hideRawJson': 'Nascondi JSON grezzo',
+  'message.askInChat': 'Chiedi in chat',
 
   'time.yesterday': 'Ieri',
   'time.today': 'Oggi',

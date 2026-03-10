@@ -1,6 +1,6 @@
 import { useEffect, useRef, useCallback, useState, useMemo } from 'react';
 import { ChatMessageComponent } from './ChatMessage';
-import { ChatInput } from './ChatInput';
+import { ChatInput, type ComposerInsertRequest } from './ChatInput';
 import { TypingIndicator } from './TypingIndicator';
 import type { ChatMessage, ConnectionStatus } from '../types';
 import { Bot, ArrowDown, Loader2, ChevronsDownUp, ChevronsUpDown, Sparkles, Bookmark, Download } from 'lucide-react';
@@ -81,9 +81,14 @@ export function Chat({ messages, isGenerating, isLoadingHistory, status, session
   const [showScrollBtn, setShowScrollBtn] = useState(false);
   const [newMessageCount, setNewMessageCount] = useState(0);
   const [replyTo, setReplyTo] = useState<{ preview: string } | null>(null);
+  const [insertRequest, setInsertRequest] = useState<ComposerInsertRequest | null>(null);
 
   // Clear reply context on session switch
-  useEffect(() => { setReplyTo(null); }, [sessionKey]); // eslint-disable-line react-hooks/set-state-in-effect
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- reset transient composer UI when session changes
+    setReplyTo(null);
+    setInsertRequest(null);
+  }, [sessionKey]);
   const prevMessageCountRef = useRef(messages.length);
 
   const checkIfNearBottom = useCallback(() => {
@@ -343,7 +348,19 @@ export function Chat({ messages, isGenerating, isLoadingHistory, status, session
                     </div>
                   )}
                   <div className={`${isActiveMatch ? 'ring-1 ring-pc-accent-light/40 rounded-lg' : ''} ${msg.isArchived ? 'opacity-60' : ''}`}>
-                    <ChatMessageComponent message={msg} onRetry={!isGenerating ? handleSend : undefined} onReply={(preview) => { setReplyTo({ preview }); document.getElementById('chat-input')?.focus(); }} agentAvatarUrl={agentAvatarUrl} isFirstInGroup={isFirstInGroup} isBookmarked={isBookmarked(msg.id)} onToggleBookmark={sessionKey ? () => toggleBookmark(msg.id, sessionKey, (msg.content || '').slice(0, 120), msg.timestamp) : undefined} />
+                    <ChatMessageComponent
+                      message={msg}
+                      onRetry={!isGenerating ? handleSend : undefined}
+                      onReply={(preview) => { setReplyTo({ preview }); document.getElementById('chat-input')?.focus(); }}
+                      onUseSelection={(text) => {
+                        setInsertRequest({ id: `${msg.id}:${Date.now()}`, text });
+                        document.getElementById('chat-input')?.focus();
+                      }}
+                      agentAvatarUrl={agentAvatarUrl}
+                      isFirstInGroup={isFirstInGroup}
+                      isBookmarked={isBookmarked(msg.id)}
+                      onToggleBookmark={sessionKey ? () => toggleBookmark(msg.id, sessionKey, (msg.content || '').slice(0, 120), msg.timestamp) : undefined}
+                    />
                   </div>
                 </div>
             );
@@ -426,7 +443,7 @@ export function Chat({ messages, isGenerating, isLoadingHistory, status, session
           </div>
         )}
       </div>
-      <ChatInput onSend={handleSend} onNewSession={onNewSession} onAbort={onAbort} isGenerating={isGenerating} disabled={status !== 'connected'} sessionKey={sessionKey} replyTo={replyTo} onCancelReply={() => setReplyTo(null)} />
+      <ChatInput onSend={handleSend} onNewSession={onNewSession} onAbort={onAbort} isGenerating={isGenerating} disabled={status !== 'connected'} sessionKey={sessionKey} replyTo={replyTo} onCancelReply={() => setReplyTo(null)} insertRequest={insertRequest} />
     </div>
   );
 }
