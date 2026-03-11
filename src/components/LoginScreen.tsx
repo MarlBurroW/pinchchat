@@ -33,7 +33,7 @@ function getInitialToken(): string {
 
 function getInitialAuthMode(): AuthMode {
   const stored = getStoredCredentials();
-  return stored?.authMode ?? 'token';
+  return stored?.authMode ?? (import.meta.env.VITE_DEFAULT_AUTH_MODE as AuthMode) ?? 'token';
 }
 
 function getInitialClientId(): string {

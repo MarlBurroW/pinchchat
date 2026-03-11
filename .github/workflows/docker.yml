@@ -27,7 +27,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/marlburrow/pinchchat
+          images: ghcr.io/b4arena/pinchchat
           tags: |
             type=raw,value=edge
             type=sha,prefix=
@@ -39,3 +39,6 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            VITE_GATEWAY_WS_URL=wss://mimas.tailc66a3b.ts.net
+            VITE_DEFAULT_AUTH_MODE=password
