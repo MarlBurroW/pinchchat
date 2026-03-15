@@ -3,7 +3,7 @@ import { X, Search, Pin, Trash2, Columns2, Clock, Bot, MessageSquare, Globe, Zap
 import type { Session } from '../types';
 import { useT } from '../hooks/useLocale';
 import { SessionIcon } from './SessionIcon';
-import { sessionDisplayName } from '../lib/sessionName';
+import { sessionDisplayName, extractAgentIdFromKey } from '../lib/sessionName';
 import { relativeTime } from '../lib/relativeTime';
 import { useUpdateCheck } from '../hooks/useUpdateCheck';
 import { usePwaInstall } from '../hooks/usePwaInstall';
@@ -183,6 +183,7 @@ export function Sidebar({ sessions, activeSession, onSwitch, onDelete, onSplit, 
   const [channelFilter, setChannelFilter] = useState<string | null>(() => {
     try { return localStorage.getItem(FILTER_KEY); } catch { return null; }
   });
+  const [agentFilter, setAgentFilter] = useState<string | null>(null);
   const [dragKey, setDragKey] = useState<string | null>(null);
   const [dropTarget, setDropTarget] = useState<string | null>(null);
   const [customNames, setCustomNames] = useState<Record<string, string>>(getCustomNames);
@@ -302,6 +303,19 @@ export function Sidebar({ sessions, activeSession, onSwitch, onDelete, onSplit, 
 
   const availableCategories = useMemo(() => getAvailableCategories(sessions), [sessions]);
 
+  const availableAgentIds = useMemo(() => {
+    const ids = new Set<string>();
+    for (const s of sessions) {
+      const id = s.agentId || extractAgentIdFromKey(s.key);
+      if (id) ids.add(id);
+    }
+    return Array.from(ids).sort();
+  }, [sessions]);
+
+  const toggleAgentFilter = useCallback((id: string) => {
+    setAgentFilter(prev => prev === id ? null : id);
+  }, []);
+
   const toggleChannelFilter = useCallback((cat: string) => {
     setChannelFilter(prev => {
       const next = prev === cat ? null : cat;
@@ -320,6 +334,12 @@ export function Sidebar({ sessions, activeSession, onSwitch, onDelete, onSplit, 
       list = list.filter(s => s.isActive);
     } else if (channelFilter) {
       list = list.filter(s => sessionCategory(s) === channelFilter);
+    }
+    if (agentFilter) {
+      list = list.filter(s => {
+        const id = s.agentId || extractAgentIdFromKey(s.key);
+        return id === agentFilter;
+      });
     }
     if (filter.trim()) {
       const q = filter.toLowerCase();
@@ -341,7 +361,7 @@ export function Sidebar({ sessions, activeSession, onSwitch, onDelete, onSplit, 
     pinnedList.sort(byCustomThenRecent);
     unpinnedList.sort(byCustomThenRecent);
     return [...pinnedList, ...unpinnedList];
-  }, [sessions, filter, pinned, customOrder, channelFilter, customNames]);
+  }, [sessions, filter, pinned, customOrder, channelFilter, agentFilter, customNames]);
 
   return (
     <>
@@ -389,44 +409,81 @@ export function Sidebar({ sessions, activeSession, onSwitch, onDelete, onSplit, 
           </div>
         )}
 
-        {/* Channel filter chips */}
-        {availableCategories.length > 1 && (
-          <div className="px-2 pt-1.5 flex flex-wrap gap-1">
-            <button
-              onClick={() => { setChannelFilter(null); try { localStorage.removeItem(FILTER_KEY); } catch { /* noop */ } }}
-              className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium transition-colors border ${
-                !channelFilter
-                  ? 'bg-[var(--pc-accent-glow)] text-pc-accent-light border-[var(--pc-accent-dim)]'
-                  : 'bg-transparent text-pc-text-muted border-pc-border hover:bg-[var(--pc-hover)] hover:text-pc-text-secondary'
-              }`}
-            >
-              {t('sidebar.filterAll')}
-            </button>
-            <button
-              onClick={() => toggleChannelFilter('active')}
-              className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium transition-colors border ${
-                channelFilter === 'active'
-                  ? 'bg-violet-500/15 text-violet-300 border-violet-500/30'
-                  : 'bg-transparent text-pc-text-muted border-pc-border hover:bg-[var(--pc-hover)] hover:text-pc-text-secondary'
-              }`}
-            >
-              <Zap size={10} />
-              {t('sidebar.filterActive')}
-            </button>
-            {availableCategories.map(cat => (
-              <button
-                key={cat}
-                onClick={() => toggleChannelFilter(cat)}
-                className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium transition-colors border ${
-                  channelFilter === cat
-                    ? 'bg-[var(--pc-accent-glow)] text-pc-accent-light border-[var(--pc-accent-dim)]'
-                    : 'bg-transparent text-pc-text-muted border-pc-border hover:bg-[var(--pc-hover)] hover:text-pc-text-secondary'
-                }`}
-              >
-                <FilterChipIcon cat={cat} size={10} />
-                {categoryLabel(cat)}
-              </button>
-            ))}
+        {/* Filter chips */}
+        {(availableCategories.length > 1 || availableAgentIds.length >= 2) && (
+          <div className="px-2 pt-2 pb-1 flex flex-col gap-2">
+            {availableCategories.length > 1 && (
+              <div className="flex flex-wrap gap-1">
+                <button
+                  onClick={() => { setChannelFilter(null); try { localStorage.removeItem(FILTER_KEY); } catch { /* noop */ } }}
+                  className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium transition-colors border ${
+                    !channelFilter
+                      ? 'bg-[var(--pc-accent-glow)] text-pc-accent-light border-[var(--pc-accent-dim)]'
+                      : 'bg-transparent text-pc-text-muted border-pc-border hover:bg-[var(--pc-hover)] hover:text-pc-text-secondary'
+                  }`}
+                >
+                  {t('sidebar.filterAll')}
+                </button>
+                <button
+                  onClick={() => toggleChannelFilter('active')}
+                  className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium transition-colors border ${
+                    channelFilter === 'active'
+                      ? 'bg-violet-500/15 text-violet-300 border-violet-500/30'
+                      : 'bg-transparent text-pc-text-muted border-pc-border hover:bg-[var(--pc-hover)] hover:text-pc-text-secondary'
+                  }`}
+                >
+                  <Zap size={10} />
+                  {t('sidebar.filterActive')}
+                </button>
+                {availableCategories.map(cat => (
+                  <button
+                    key={cat}
+                    onClick={() => toggleChannelFilter(cat)}
+                    className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium transition-colors border ${
+                      channelFilter === cat
+                        ? 'bg-[var(--pc-accent-glow)] text-pc-accent-light border-[var(--pc-accent-dim)]'
+                        : 'bg-transparent text-pc-text-muted border-pc-border hover:bg-[var(--pc-hover)] hover:text-pc-text-secondary'
+                    }`}
+                  >
+                    <FilterChipIcon cat={cat} size={10} />
+                    {categoryLabel(cat)}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {availableCategories.length > 1 && availableAgentIds.length >= 2 && (
+              <div className="h-px bg-pc-border/50" />
+            )}
+
+            {availableAgentIds.length >= 2 && (
+              <div className="flex flex-wrap gap-1">
+                <button
+                  onClick={() => setAgentFilter(null)}
+                  className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium transition-colors border ${
+                    !agentFilter
+                      ? 'bg-[var(--pc-accent-glow)] text-pc-accent-light border-[var(--pc-accent-dim)]'
+                      : 'bg-transparent text-pc-text-muted border-pc-border hover:bg-[var(--pc-hover)] hover:text-pc-text-secondary'
+                  }`}
+                >
+                  {t('sidebar.filterAllAgents')}
+                </button>
+                {availableAgentIds.map(id => (
+                  <button
+                    key={id}
+                    onClick={() => toggleAgentFilter(id)}
+                    className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium transition-colors border ${
+                      agentFilter === id
+                        ? 'bg-[var(--pc-accent-glow)] text-pc-accent-light border-[var(--pc-accent-dim)]'
+                        : 'bg-transparent text-pc-text-muted border-pc-border hover:bg-[var(--pc-hover)] hover:text-pc-text-secondary'
+                    }`}
+                  >
+                    <Bot size={10} className="shrink-0" />
+                    <span className="font-mono">{id}</span>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         )}
 

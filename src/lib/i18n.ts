@@ -78,6 +78,7 @@ const en = {
   'sidebar.clearSearch': 'Clear search',
   'sidebar.filterAll': 'All',
   'sidebar.filterActive': 'Active',
+  'sidebar.filterAllAgents': 'All agents',
   'split.close': 'Close split view',
   'app.mainChat': 'Main chat',
   'app.splitPane': 'Split pane',
