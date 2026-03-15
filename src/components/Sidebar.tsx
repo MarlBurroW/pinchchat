@@ -66,6 +66,7 @@ const PINNED_KEY = 'pinchchat-pinned-sessions';
 const WIDTH_KEY = 'pinchchat-sidebar-width';
 const ORDER_KEY = 'pinchchat-session-order';
 const FILTER_KEY = 'pinchchat-session-filter';
+const AGENT_FILTER_KEY = 'pinchchat-session-agent-filter';
 const NAMES_KEY = 'pinchchat-session-names';
 
 function getCustomNames(): Record<string, string> {
@@ -183,7 +184,9 @@ export function Sidebar({ sessions, activeSession, onSwitch, onDelete, onSplit, 
   const [channelFilter, setChannelFilter] = useState<string | null>(() => {
     try { return localStorage.getItem(FILTER_KEY); } catch { return null; }
   });
-  const [agentFilter, setAgentFilter] = useState<string | null>(null);
+  const [agentFilter, setAgentFilter] = useState<string | null>(() => {
+    try { return localStorage.getItem(AGENT_FILTER_KEY); } catch { return null; }
+  });
   const [dragKey, setDragKey] = useState<string | null>(null);
   const [dropTarget, setDropTarget] = useState<string | null>(null);
   const [customNames, setCustomNames] = useState<Record<string, string>>(getCustomNames);
@@ -305,15 +308,22 @@ export function Sidebar({ sessions, activeSession, onSwitch, onDelete, onSplit, 
 
   const availableAgentIds = useMemo(() => {
     const ids = new Set<string>();
-    for (const s of sessions) {
+    sessions.forEach(s => {
       const id = s.agentId || extractAgentIdFromKey(s.key);
       if (id) ids.add(id);
-    }
+    });
     return Array.from(ids).sort();
   }, [sessions]);
 
   const toggleAgentFilter = useCallback((id: string) => {
-    setAgentFilter(prev => prev === id ? null : id);
+    setAgentFilter(prev => {
+      const next = prev === id ? null : id;
+      try {
+        if (next) localStorage.setItem(AGENT_FILTER_KEY, next);
+        else localStorage.removeItem(AGENT_FILTER_KEY);
+      } catch { /* noop */ }
+      return next;
+    });
   }, []);
 
   const toggleChannelFilter = useCallback((cat: string) => {
@@ -459,7 +469,7 @@ export function Sidebar({ sessions, activeSession, onSwitch, onDelete, onSplit, 
             {availableAgentIds.length >= 2 && (
               <div className="flex flex-wrap gap-1">
                 <button
-                  onClick={() => setAgentFilter(null)}
+                  onClick={() => { setAgentFilter(null); try { localStorage.removeItem(AGENT_FILTER_KEY); } catch { /* noop */ } }}
                   className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium transition-colors border ${
                     !agentFilter
                       ? 'bg-[var(--pc-accent-glow)] text-pc-accent-light border-[var(--pc-accent-dim)]'
