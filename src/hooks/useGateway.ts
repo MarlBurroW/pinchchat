@@ -457,6 +457,44 @@ export function useGateway() {
     }
   }, [switchSession, loadSessions]);
 
+  const createSessionForAgent = useCallback(async (agentId: string) => {
+    const client = clientRef.current;
+    if (!client) return;
+
+    const expectedPrefix = `agent:${agentId}:`;
+    const fallbackKey = `${expectedPrefix}webchat-${Date.now()}`;
+    let nextKey = fallbackKey;
+
+    try {
+      const res = await client.send('sessions.create', {
+        channel: 'webchat',
+        agentId,
+      }) as JsonPayload | undefined;
+      const fromRoot = (typeof res?.key === 'string' && res.key)
+        || (typeof res?.sessionKey === 'string' && res.sessionKey)
+        || null;
+      const nestedSession = (res?.session && typeof res.session === 'object') ? res.session as Record<string, unknown> : null;
+      const fromNested = (nestedSession && typeof nestedSession.key === 'string' && nestedSession.key)
+        || (nestedSession && typeof nestedSession.sessionKey === 'string' && nestedSession.sessionKey)
+        || null;
+
+      const returnedKey = (fromRoot || fromNested) as string | null;
+      if (returnedKey && returnedKey.startsWith(expectedPrefix)) {
+        nextKey = returnedKey;
+      }
+    } catch (err) {
+      console.warn('[createSessionForAgent] sessions.create not supported, using fallback key', err);
+    }
+
+    switchSession(nextKey);
+    try {
+      await loadSessions();
+    } catch (err) {
+      console.warn('[createSessionForAgent] failed to refresh session list', err);
+    }
+  }, [switchSession, loadSessions]);
+
+
   const login = useCallback((url: string, token: string, authMode: AuthMode = 'token', clientId?: string) => {
     setupClient(url, token, authMode, clientId);
   }, [setupClient]);
@@ -518,7 +556,7 @@ export function useGateway() {
 
   return {
     status, messages, sessions: enrichedSessions, activeSession, isGenerating, isLoadingHistory,
-    sendMessage, abort, switchSession, createNewSession, loadSessions, deleteSession,
+    sendMessage, abort, switchSession, createNewSession, createSessionForAgent, loadSessions, deleteSession,
     authenticated, login, logout, connectError, isConnecting, agentIdentity,
     getClient, addEventListener,
   };

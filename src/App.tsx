@@ -29,7 +29,7 @@ function getSavedSplitRatio(): number {
 export default function App() {
   const {
     status, messages, sessions, activeSession, isGenerating, isLoadingHistory,
-    sendMessage, abort, switchSession, deleteSession, createNewSession,
+    sendMessage, abort, switchSession, deleteSession, createNewSession, createSessionForAgent,
     authenticated, login, logout, connectError, isConnecting, agentIdentity,
     getClient, addEventListener,
   } = useGateway();
@@ -190,6 +190,8 @@ export default function App() {
         open={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
         onRename={handleRename}
+        onNewSession={createNewSession}
+        onNewSessionForAgent={createSessionForAgent}
       />
       <div ref={splitContainerRef} className="flex-1 flex min-w-0" aria-hidden={sidebarOpen ? true : undefined}>
         {/* Primary pane */}
