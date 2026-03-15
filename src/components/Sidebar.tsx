@@ -170,10 +170,10 @@ function NewSessionSplitButton({ onNewSession, onNewSessionForAgent, sessions }:
 
   const agentIds = useMemo(() => {
     const ids = new Set<string>();
-    for (const s of sessions) {
+    sessions.forEach(s => {
       const id = s.agentId || extractAgentIdFromKey(s.key);
       if (id) ids.add(id);
-    }
+    });
     return Array.from(ids).sort();
   }, [sessions]);
 
