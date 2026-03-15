@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { isSystemEvent, stripWebhookScaffolding, hasWebhookScaffolding } from '../systemEvent';
+import { isSystemEvent, stripWebhookScaffolding, hasWebhookScaffolding, hasWebchatEnvelope, stripWebchatEnvelope } from '../systemEvent';
 
 describe('isSystemEvent', () => {
   it('returns false for empty string', () => {
@@ -69,6 +69,24 @@ describe('isSystemEvent', () => {
   it('does not falsely detect [System Message] mid-sentence', () => {
     expect(isSystemEvent('Hello [System Message] this is not a system event')).toBe(false);
   });
+
+  it('detects [Queued announce messages ...] markers', () => {
+    expect(isSystemEvent('[Queued announce messages (2)]')).toBe(true);
+    expect(isSystemEvent('[Queued announce messages from cron]')).toBe(true);
+  });
+
+  it('detects gateway system notifications', () => {
+    expect(isSystemEvent('System: [2026-02-18 14:06:00] WhatsApp gateway connected.')).toBe(true);
+    expect(isSystemEvent('System: [2026-01-01 00:00:00] Service restarted')).toBe(true);
+  });
+
+  it('does not detect "System:" without timestamp', () => {
+    expect(isSystemEvent('System: hello')).toBe(false);
+  });
+
+  it('detects pre-compaction memory flush prompts', () => {
+    expect(isSystemEvent('Pre-compaction memory flush — save important context')).toBe(true);
+  });
 });
 
 describe('stripWebhookScaffolding', () => {
@@ -127,5 +145,73 @@ describe('hasWebhookScaffolding', () => {
 
   it('detects SECURITY NOTICE', () => {
     expect(hasWebhookScaffolding('--- SECURITY NOTICE --- blah')).toBe(true);
+  });
+});
+
+describe('hasWebchatEnvelope', () => {
+  it('returns false for plain messages', () => {
+    expect(hasWebchatEnvelope('Hello world')).toBe(false);
+  });
+
+  it('detects conversation info header', () => {
+    const input = `Conversation info (untrusted metadata):
+\`\`\`json
+{"channel":"webchat"}
+\`\`\`
+
+[Wed 2026-02-18 14:06 UTC] Hello`;
+    expect(hasWebchatEnvelope(input)).toBe(true);
+  });
+
+  it('detects timestamp prefix alone', () => {
+    expect(hasWebchatEnvelope('[Wed 2026-02-18 14:06 UTC] Hello')).toBe(true);
+    expect(hasWebchatEnvelope('[Mon 2026-01-01 00:00 UTC] Test')).toBe(true);
+  });
+
+  it('detects timestamp with leading whitespace', () => {
+    expect(hasWebchatEnvelope('  [Thu 2026-03-15 19:00 UTC] Message')).toBe(true);
+  });
+
+  it('does not match partial day names', () => {
+    expect(hasWebchatEnvelope('[Wednesday 2026-02-18 14:06 UTC] Hello')).toBe(false);
+  });
+});
+
+describe('stripWebchatEnvelope', () => {
+  it('returns original text when no envelope', () => {
+    expect(stripWebchatEnvelope('Hello world')).toBe('Hello world');
+  });
+
+  it('strips conversation info block and timestamp prefix', () => {
+    const input = `Conversation info (untrusted metadata):
+\`\`\`json
+{"channel":"webchat","session":"abc"}
+\`\`\`
+
+[Wed 2026-02-18 14:06 UTC] Hello there`;
+    expect(stripWebchatEnvelope(input)).toBe('Hello there');
+  });
+
+  it('strips only timestamp prefix when no metadata block', () => {
+    expect(stripWebchatEnvelope('[Fri 2026-06-01 08:30 UTC] Good morning'))
+      .toBe('Good morning');
+  });
+
+  it('strips only metadata block when no timestamp prefix', () => {
+    const input = `Conversation info (untrusted metadata):
+\`\`\`json
+{"channel":"webchat"}
+\`\`\`
+
+Just a message without timestamp`;
+    expect(stripWebchatEnvelope(input)).toBe('Just a message without timestamp');
+  });
+
+  it('returns original when stripping leaves empty', () => {
+    // Edge case: if somehow the entire content is envelope
+    const input = 'Conversation info (untrusted metadata):\n```json\n{}\n```\n';
+    const result = stripWebchatEnvelope(input);
+    // Should return trimmed original or empty-trimmed
+    expect(result.length).toBeGreaterThan(0);
   });
 });
