@@ -415,24 +415,16 @@ export function useGateway() {
     loadHistory(key);
   }, [loadHistory]);
 
-  const createNewSession = useCallback(async () => {
+  const createSessionWithConfig = useCallback(async (agentId: string, channel: string) => {
     const client = clientRef.current;
     if (!client) return;
 
-    const currentKey = activeSessionRef.current;
-    const currentSession = sessionsRef.current.find((s) => s.key === currentKey);
-    const targetAgentId = currentSession?.agentId || extractAgentIdFromKey(currentKey) || 'main';
-    const targetChannel = currentSession?.channel || 'webchat';
-    const expectedPrefix = `agent:${targetAgentId}:`;
-
+    const expectedPrefix = `agent:${agentId}:`;
     const fallbackKey = `${expectedPrefix}webchat-${Date.now()}`;
     let nextKey = fallbackKey;
 
     try {
-      const res = await client.send('sessions.create', {
-        channel: targetChannel,
-        agentId: targetAgentId,
-      }) as JsonPayload | undefined;
+      const res = await client.send('sessions.create', { channel, agentId }) as JsonPayload | undefined;
       const fromRoot = (typeof res?.key === 'string' && res.key)
         || (typeof res?.sessionKey === 'string' && res.sessionKey)
         || null;
@@ -446,16 +438,28 @@ export function useGateway() {
         nextKey = returnedKey;
       }
     } catch (err) {
-      console.warn('[createNewSession] sessions.create not supported, using fallback key', err);
+      console.warn('[createSession] sessions.create not supported, using fallback key', err);
     }
 
     switchSession(nextKey);
     try {
       await loadSessions();
     } catch (err) {
-      console.warn('[createNewSession] failed to refresh session list', err);
+      console.warn('[createSession] failed to refresh session list', err);
     }
   }, [switchSession, loadSessions]);
+
+  const createNewSession = useCallback(async () => {
+    const currentKey = activeSessionRef.current;
+    const currentSession = sessionsRef.current.find((s) => s.key === currentKey);
+    const targetAgentId = currentSession?.agentId || extractAgentIdFromKey(currentKey) || 'main';
+    const targetChannel = currentSession?.channel || 'webchat';
+    await createSessionWithConfig(targetAgentId, targetChannel);
+  }, [createSessionWithConfig]);
+
+  const createSessionForAgent = useCallback(async (agentId: string) => {
+    await createSessionWithConfig(agentId, 'webchat');
+  }, [createSessionWithConfig]);
 
   const login = useCallback((url: string, token: string, authMode: AuthMode = 'token', clientId?: string) => {
     setupClient(url, token, authMode, clientId);
@@ -518,7 +522,7 @@ export function useGateway() {
 
   return {
     status, messages, sessions: enrichedSessions, activeSession, isGenerating, isLoadingHistory,
-    sendMessage, abort, switchSession, createNewSession, loadSessions, deleteSession,
+    sendMessage, abort, switchSession, createNewSession, createSessionForAgent, loadSessions, deleteSession,
     authenticated, login, logout, connectError, isConnecting, agentIdentity,
     getClient, addEventListener,
   };
