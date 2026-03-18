@@ -1,6 +1,6 @@
 {
   "name": "pinchchat",
-  "version": "1.70.1",
+  "version": "1.70.2",
   "description": "A sleek, dark-themed webchat UI for OpenClaw — monitor sessions, stream responses, and inspect tool calls in real-time.",
   "type": "module",
   "repository": {
