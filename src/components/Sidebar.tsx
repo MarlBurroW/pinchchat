@@ -1,5 +1,5 @@
 import { useState, useMemo, useRef, useEffect, useCallback } from 'react';
-import { X, Search, Pin, Trash2, Columns2, Clock, Bot, MessageSquare, Globe, Zap, ArrowUpCircle, Download, Pencil, Plus, ChevronDown } from 'lucide-react';
+import { X, Search, Pin, Trash2, Columns2, Clock, Bot, MessageSquare, Globe, Zap, ArrowUpCircle, Download, Pencil, Link, Plus, ChevronDown } from 'lucide-react';
 import type { Session } from '../types';
 import { useT } from '../hooks/useLocale';
 import { SessionIcon } from './SessionIcon';
@@ -15,6 +15,7 @@ import {
   getSavedWidth, getPinnedSessions, savePinnedSessions,
   getSavedOrder, saveOrder,
 } from '../lib/sidebarStorage';
+import { copyToClipboard } from '../lib/clipboard';
 
 function VersionBadge() {
   const update = useUpdateCheck(__APP_VERSION__);
@@ -168,9 +169,10 @@ interface Props {
   onRename?: (key: string, label: string) => Promise<boolean>;
   onNewSession?: () => Promise<void>;
   onNewSessionForAgent?: (agentId: string) => Promise<void>;
+  onToast?: (opts: { message: string; type: 'success' | 'warning' }) => void;
 }
 
-export function Sidebar({ sessions, activeSession, onSwitch, onDelete, onSplit, splitSession, open, onClose, onRename, onNewSession, onNewSessionForAgent }: Props) {
+export function Sidebar({ sessions, activeSession, onSwitch, onDelete, onSplit, splitSession, open, onClose, onRename, onNewSession, onNewSessionForAgent, onToast }: Props) {
   const t = useT();
   const [filter, setFilter] = useState('');
   const [focusIdx, setFocusIdx] = useState(-1);
@@ -687,6 +689,25 @@ export function Sidebar({ sessions, activeSession, onSwitch, onDelete, onSplit, 
                         aria-label={isPinned ? t('sidebar.unpin') : t('sidebar.pin')}
                       >
                         <Pin size={12} className={isPinned ? 'fill-current' : ''} />
+                      </button>
+                      <button
+                        onClick={async (e) => {
+                          e.stopPropagation();
+                          const params = new URLSearchParams(window.location.search);
+                          params.set('session', s.key);
+                          const url = window.location.origin + window.location.pathname + '?' + params.toString();
+                          const ok = await copyToClipboard(url);
+                          if (ok) {
+                            onToast?.({ message: t('session.linkCopied'), type: 'success' });
+                          } else {
+                            onToast?.({ message: t('session.copyLinkFailed'), type: 'warning' });
+                          }
+                        }}
+                        className="shrink-0 p-0.5 rounded-lg transition-all text-pc-text-faint opacity-0 group-hover/item:opacity-60 hover:!opacity-100 hover:text-pc-text-secondary"
+                        title={t('sidebar.copyLink')}
+                        aria-label={t('sidebar.copyLink')}
+                      >
+                        <Link size={12} />
                       </button>
                       {onSplit && (
                         <button
