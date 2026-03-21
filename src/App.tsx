@@ -7,6 +7,7 @@ import { Sidebar } from './components/Sidebar';
 import { LoginScreen } from './components/LoginScreen';
 import { ConnectionBanner } from './components/ConnectionBanner';
 import { KeyboardShortcuts } from './components/KeyboardShortcuts';
+import { Toast } from './components/Toast';
 import { ToolCollapseProvider } from './contexts/ToolCollapseContext';
 import { sessionDisplayName, extractAgentIdFromKey, formatAgentId } from './lib/sessionName';
 import { X } from 'lucide-react';
@@ -31,7 +32,7 @@ export default function App() {
     status, messages, sessions, activeSession, isGenerating, isLoadingHistory,
     sendMessage, abort, switchSession, deleteSession, createNewSession, createSessionForAgent,
     authenticated, login, logout, connectError, isConnecting, agentIdentity,
-    getClient, addEventListener,
+    getClient, addEventListener, isSessionsLoaded,
   } = useGateway();
   const [splitSession, setSplitSession] = useState<string | null>(null);
   const [splitRatio, setSplitRatio] = useState(getSavedSplitRatio);
@@ -109,6 +110,32 @@ export default function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
   useSwipeSidebar(sidebarOpen, () => setSidebarOpen(true), () => setSidebarOpen(false));
+
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'warning' } | null>(null);
+  const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const showToast = useCallback((options: { message: string; type: 'success' | 'warning' }) => {
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    setToast(options);
+    toastTimerRef.current = setTimeout(() => setToast(null), 2000);
+  }, []);
+
+  // Read and clean ?session= URL param on mount. IIFE required — useRef does not accept a lazy initializer.
+  const pendingSessionRef = useRef<string | null>((() => {
+    const params = new URLSearchParams(window.location.search);
+    const key = params.get('session'); // URLSearchParams.get() auto-decodes percent-encoding
+    if (key) {
+      params.delete('session');
+      const newSearch = params.toString();
+      history.replaceState(
+        {},
+        '',
+        window.location.pathname + (newSearch ? '?' + newSearch : '')
+      );
+    }
+    return key;
+  })());
+
   const { notify, soundEnabled, toggleSound } = useNotifications();
   const prevMessageCountRef = useRef(messages.length);
 
@@ -131,6 +158,19 @@ export default function App() {
     setBaseTitle(session?.label || session?.key);
     return () => setBaseTitle(undefined);
   }, [activeSession, sessions]);
+
+  // Resolve pending session from URL param once authenticated and sessions loaded
+  useEffect(() => {
+    if (!authenticated || !isSessionsLoaded) return;
+    const key = pendingSessionRef.current;
+    if (!key) return;
+    pendingSessionRef.current = null; // consume — fires at most once
+    if (sessions.find(s => s.key === key)) {
+      switchSession(key);
+    } else {
+      showToast({ message: t('session.notFound'), type: 'warning' });
+    }
+  }, [authenticated, isSessionsLoaded, sessions, switchSession, showToast, t]);
 
   // Keyboard shortcuts: Escape, ?, Alt+↑/↓ for session navigation
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
@@ -192,6 +232,7 @@ export default function App() {
         onRename={handleRename}
         onNewSession={createNewSession}
         onNewSessionForAgent={createSessionForAgent}
+        onToast={showToast}
       />
       <div ref={splitContainerRef} className="flex-1 flex min-w-0" aria-hidden={sidebarOpen ? true : undefined}>
         {/* Primary pane */}
@@ -235,6 +276,7 @@ export default function App() {
       </div>
       <KeyboardShortcuts open={shortcutsOpen} onClose={() => setShortcutsOpen(false)} />
     </div>
+    {toast && <Toast message={toast.message} type={toast.type} />}
     </ToolCollapseProvider>
   );
 }
