@@ -13,6 +13,7 @@ import { sessionDisplayName, extractAgentIdFromKey, formatAgentId } from './lib/
 import { X } from 'lucide-react';
 import { useT } from './hooks/useLocale';
 import { useSwipeSidebar } from './hooks/useSwipeSidebar';
+import { useSessionDeepLink } from './hooks/useSessionDeepLink';
 
 const Chat = lazy(() => import('./components/Chat').then(m => ({ default: m.Chat })));
 
@@ -120,21 +121,13 @@ export default function App() {
     toastTimerRef.current = setTimeout(() => setToast(null), 2000);
   }, []);
 
-  // Read and clean ?session= URL param on mount. IIFE required — useRef does not accept a lazy initializer.
-  const pendingSessionRef = useRef<string | null>((() => {
-    const params = new URLSearchParams(window.location.search);
-    const key = params.get('session'); // URLSearchParams.get() auto-decodes percent-encoding
-    if (key) {
-      params.delete('session');
-      const newSearch = params.toString();
-      history.replaceState(
-        {},
-        '',
-        window.location.pathname + (newSearch ? '?' + newSearch : '')
-      );
-    }
-    return key;
-  })());
+  useSessionDeepLink({
+    sessions,
+    authenticated,
+    isSessionsLoaded,
+    switchSession,
+    onNotFound: useCallback(() => showToast({ message: t('session.notFound'), type: 'warning' }), [showToast, t]),
+  });
 
   const { notify, soundEnabled, toggleSound } = useNotifications();
   const prevMessageCountRef = useRef(messages.length);
@@ -158,19 +151,6 @@ export default function App() {
     setBaseTitle(session?.label || session?.key);
     return () => setBaseTitle(undefined);
   }, [activeSession, sessions]);
-
-  // Resolve pending session from URL param once authenticated and sessions loaded
-  useEffect(() => {
-    if (!authenticated || !isSessionsLoaded) return;
-    const key = pendingSessionRef.current;
-    if (!key) return;
-    pendingSessionRef.current = null; // consume — fires at most once
-    if (sessions.find(s => s.key === key)) {
-      switchSession(key);
-    } else {
-      setTimeout(() => showToast({ message: t('session.notFound'), type: 'warning' }), 0);
-    }
-  }, [authenticated, isSessionsLoaded, sessions, switchSession, showToast, t]);
 
   // Keyboard shortcuts: Escape, ?, Alt+↑/↓ for session navigation
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
