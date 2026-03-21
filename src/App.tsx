@@ -168,7 +168,7 @@ export default function App() {
     if (sessions.find(s => s.key === key)) {
       switchSession(key);
     } else {
-      showToast({ message: t('session.notFound'), type: 'warning' });
+      setTimeout(() => showToast({ message: t('session.notFound'), type: 'warning' }), 0);
     }
   }, [authenticated, isSessionsLoaded, sessions, switchSession, showToast, t]);
 
