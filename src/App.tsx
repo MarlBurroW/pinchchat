@@ -112,13 +112,21 @@ export default function App() {
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
   useSwipeSidebar(sidebarOpen, () => setSidebarOpen(true), () => setSidebarOpen(false));
 
-  const [toast, setToast] = useState<{ message: string; type: 'success' | 'warning' } | null>(null);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'warning'; leaving?: boolean } | null>(null);
   const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const toastLeaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const showToast = useCallback((options: { message: string; type: 'success' | 'warning' }) => {
     if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    if (toastLeaveTimerRef.current) clearTimeout(toastLeaveTimerRef.current);
     setToast(options);
+    toastLeaveTimerRef.current = setTimeout(() => setToast(prev => prev ? { ...prev, leaving: true } : null), 1700);
     toastTimerRef.current = setTimeout(() => setToast(null), 2000);
+  }, []);
+
+  useEffect(() => () => {
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    if (toastLeaveTimerRef.current) clearTimeout(toastLeaveTimerRef.current);
   }, []);
 
   useSessionDeepLink({
@@ -256,7 +264,7 @@ export default function App() {
       </div>
       <KeyboardShortcuts open={shortcutsOpen} onClose={() => setShortcutsOpen(false)} />
     </div>
-    {toast && <Toast message={toast.message} type={toast.type} />}
+    {toast && <Toast message={toast.message} type={toast.type} leaving={toast.leaving} />}
     </ToolCollapseProvider>
   );
 }
