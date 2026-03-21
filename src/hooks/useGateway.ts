@@ -17,6 +17,7 @@ export function useGateway() {
   const [activeSession, setActiveSession] = useState(import.meta.env.VITE_AGENT_SESSION || 'agent:main:main');
   const [isGenerating, setIsGenerating] = useState(false);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
+  const [isSessionsLoaded, setIsSessionsLoaded] = useState(false);
   const [authenticated, setAuthenticated] = useState<boolean | null>(null); // null = checking
   const [connectError, setConnectError] = useState<string | null>(null);
   const [isConnecting, setIsConnecting] = useState(false);
@@ -138,6 +139,8 @@ export function useGateway() {
       }
     } catch {
       // Silently ignore session list failures (e.g. disconnected)
+    } finally {
+      setIsSessionsLoaded(true);
     }
   }, [getDeletedSessions]);
 
@@ -522,6 +525,7 @@ export function useGateway() {
 
   return {
     status, messages, sessions: enrichedSessions, activeSession, isGenerating, isLoadingHistory,
+    isSessionsLoaded,
     sendMessage, abort, switchSession, createNewSession, createSessionForAgent, loadSessions, deleteSession,
     authenticated, login, logout, connectError, isConnecting, agentIdentity,
     getClient, addEventListener,
