@@ -472,9 +472,11 @@ export function useGateway() {
     try {
       await clientRef.current?.send('sessions.delete', { key, deleteTranscript: true });
     } catch {
-      // Ignore delete failures — blacklist will hide it anyway
+      // If the gateway rejects the delete, don't blacklist — the session still exists
+      // and hiding it would make it permanently invisible until localStorage is cleared.
+      return;
     }
-    // Persist to blacklist so it stays hidden after refresh
+    // Only blacklist and hide if the delete actually succeeded
     addDeletedSession(key);
     // Remove from local state
     setSessions(prev => prev.filter(s => s.key !== key));
