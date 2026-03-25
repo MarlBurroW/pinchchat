@@ -13,23 +13,28 @@ export function ExecApprovalModal({ approval, queueSize, onResolve }: Props) {
   const t = useT();
   const denyRef = useRef<HTMLButtonElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
+  const initialDurationRef = useRef(0);
 
-  // Capture total duration at mount so the progress bar has a stable denominator
-  const initialDurationRef = useRef(Math.max(1, approval.expiresAtMs - Date.now()));
-  const [secondsRemaining, setSecondsRemaining] = useState(() =>
-    Math.max(0, Math.ceil((approval.expiresAtMs - Date.now()) / 1000))
-  );
+  const [secondsRemaining, setSecondsRemaining] = useState(0);
+  const [progressPct, setProgressPct] = useState(100);
 
-  // Reset duration ref and countdown when approval changes
+  // Reset duration ref and start countdown when approval changes
   useEffect(() => {
     initialDurationRef.current = Math.max(1, approval.expiresAtMs - Date.now());
-    setSecondsRemaining(Math.max(0, Math.ceil((approval.expiresAtMs - Date.now()) / 1000)));
+
+    const tick = () => {
+      const remaining = approval.expiresAtMs - Date.now();
+      setSecondsRemaining(Math.max(0, Math.ceil(remaining / 1000)));
+      setProgressPct(Math.max(0, Math.min(100, (remaining / initialDurationRef.current) * 100)));
+    };
+
+    // Immediate async tick to avoid synchronous setState in effect body
+    const immediate = setTimeout(tick, 0);
     const interval = setInterval(() => {
-      const remaining = Math.max(0, Math.ceil((approval.expiresAtMs - Date.now()) / 1000));
-      setSecondsRemaining(remaining);
-      if (remaining <= 0) clearInterval(interval);
+      tick();
+      if (approval.expiresAtMs - Date.now() <= 0) clearInterval(interval);
     }, 1000);
-    return () => clearInterval(interval);
+    return () => { clearTimeout(immediate); clearInterval(interval); };
   }, [approval.id, approval.expiresAtMs]);
 
   // Auto-focus deny button
@@ -63,10 +68,6 @@ export function ExecApprovalModal({ approval, queueSize, onResolve }: Props) {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [handleKeyDown]);
-
-  const progressPct = Math.max(0, Math.min(100,
-    ((approval.expiresAtMs - Date.now()) / initialDurationRef.current) * 100
-  ));
 
   const commandDisplay = approval.commandPreview || approval.command || approval.commandArgv.join(' ');
 

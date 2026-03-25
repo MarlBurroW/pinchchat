@@ -3,7 +3,7 @@
  */
 import React from 'react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import { ExecApprovalModal } from '../ExecApprovalModal';
 import type { ExecApproval } from '../../types';
 
@@ -45,6 +45,7 @@ describe('ExecApprovalModal', () => {
   it('calls onResolve with deny when Deny button clicked', () => {
     const onResolve = vi.fn();
     render(<ExecApprovalModal approval={makeApproval()} queueSize={1} onResolve={onResolve} />);
+    act(() => { vi.advanceTimersByTime(1); }); // flush initial tick
     fireEvent.click(screen.getByText('Deny'));
     expect(onResolve).toHaveBeenCalledWith('test-1', 'deny');
   });
@@ -52,6 +53,7 @@ describe('ExecApprovalModal', () => {
   it('calls onResolve with allow-once when Allow Once button clicked', () => {
     const onResolve = vi.fn();
     render(<ExecApprovalModal approval={makeApproval()} queueSize={1} onResolve={onResolve} />);
+    act(() => { vi.advanceTimersByTime(1); }); // flush initial tick
     fireEvent.click(screen.getByText('Allow Once'));
     expect(onResolve).toHaveBeenCalledWith('test-1', 'allow-once');
   });
@@ -59,6 +61,7 @@ describe('ExecApprovalModal', () => {
   it('calls onResolve with allow-always when Allow Always button clicked', () => {
     const onResolve = vi.fn();
     render(<ExecApprovalModal approval={makeApproval()} queueSize={1} onResolve={onResolve} />);
+    act(() => { vi.advanceTimersByTime(1); }); // flush initial tick
     fireEvent.click(screen.getByText('Allow Always'));
     expect(onResolve).toHaveBeenCalledWith('test-1', 'allow-always');
   });

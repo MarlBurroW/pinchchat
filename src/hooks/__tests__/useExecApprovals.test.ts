@@ -18,6 +18,7 @@ function createMockGateway() {
     send: vi.fn().mockResolvedValue({}),
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const getClient = () => mockClient as any;
   const addEventListener = (fn: (event: string, payload: JsonPayload) => void) => {
     listeners.push(fn);

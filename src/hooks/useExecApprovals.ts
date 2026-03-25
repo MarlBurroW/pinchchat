@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import type { GatewayClient, JsonPayload } from '../lib/gateway';
 import type { ExecApproval, ExecApprovalDecision, ConnectionStatus } from '../types';
 import { playNotificationSound } from '../lib/notificationSound';
@@ -31,13 +31,18 @@ export function useExecApprovals(
   const [pendingApprovals, setPendingApprovals] = useState<ExecApproval[]>([]);
   const timersRef = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
 
-  // Clear queue on disconnect
+  // Clear queue on disconnect — filter to empty rather than direct setState in effect
+  const approvals = useMemo(() => {
+    if (status === 'disconnected') return [];
+    return pendingApprovals;
+  }, [status, pendingApprovals]);
+
+  // Clear timers when disconnected
   useEffect(() => {
-    if (status === 'disconnected') {
-      setPendingApprovals([]);
-      timersRef.current.forEach(t => clearTimeout(t));
-      timersRef.current.clear();
-    }
+    if (status !== 'disconnected') return;
+    const timers = timersRef.current;
+    timers.forEach(t => clearTimeout(t));
+    timers.clear();
   }, [status]);
 
   // Listen for approval events
@@ -71,37 +76,48 @@ export function useExecApprovals(
 
   // Manage expiration timers
   useEffect(() => {
-    const currentIds = new Set(pendingApprovals.map(a => a.id));
+    const timers = timersRef.current;
+    const currentIds = new Set(approvals.map(a => a.id));
 
     // Clear timers for removed approvals
-    timersRef.current.forEach((timer, id) => {
+    timers.forEach((timer, id) => {
       if (!currentIds.has(id)) {
         clearTimeout(timer);
-        timersRef.current.delete(id);
+        timers.delete(id);
       }
     });
 
     // Set timers for new approvals
-    for (const approval of pendingApprovals) {
-      if (timersRef.current.has(approval.id)) continue;
+    const expiredIds: string[] = [];
+    for (const approval of approvals) {
+      if (timers.has(approval.id)) continue;
       const remaining = approval.expiresAtMs - Date.now();
       if (remaining <= 0) {
-        setPendingApprovals(prev => prev.filter(a => a.id !== approval.id));
+        expiredIds.push(approval.id);
       } else {
         const timer = setTimeout(() => {
-          timersRef.current.delete(approval.id);
+          timers.delete(approval.id);
           setPendingApprovals(prev => prev.filter(a => a.id !== approval.id));
         }, remaining);
-        timersRef.current.set(approval.id, timer);
+        timers.set(approval.id, timer);
       }
     }
-  }, [pendingApprovals]);
+
+    // Remove already-expired approvals in a batched update after the effect
+    if (expiredIds.length > 0) {
+      const expiredSet = new Set(expiredIds);
+      setTimeout(() => {
+        setPendingApprovals(prev => prev.filter(a => !expiredSet.has(a.id)));
+      }, 0);
+    }
+  }, [approvals]);
 
   // Cleanup all timers on unmount
   useEffect(() => {
+    const timers = timersRef.current;
     return () => {
-      timersRef.current.forEach(t => clearTimeout(t));
-      timersRef.current.clear();
+      timers.forEach(t => clearTimeout(t));
+      timers.clear();
     };
   }, []);
 
@@ -115,7 +131,7 @@ export function useExecApprovals(
     setPendingApprovals(prev => prev.filter(a => a.id !== id));
   }, [getClient]);
 
-  const currentApproval = pendingApprovals[0] ?? null;
+  const currentApproval = approvals[0] ?? null;
 
-  return { pendingApprovals, currentApproval, resolve };
+  return { pendingApprovals: approvals, currentApproval, resolve };
 }
