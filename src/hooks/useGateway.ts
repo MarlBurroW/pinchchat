@@ -18,6 +18,7 @@ export function useGateway() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   const [isSessionsLoaded, setIsSessionsLoaded] = useState(false);
+  const [agents, setAgents] = useState<string[]>([]);
   const [authenticated, setAuthenticated] = useState<boolean | null>(null); // null = checking
   const [connectError, setConnectError] = useState<string | null>(null);
   const [isConnecting, setIsConnecting] = useState(false);
@@ -101,6 +102,19 @@ export function useGateway() {
       }
     } catch {
       // Silently ignore — identity is optional
+    }
+  }, []);
+
+  const loadAgents = useCallback(async () => {
+    try {
+      const res = await clientRef.current?.send('agents.list', {});
+      const agentList = res?.agents as Array<Record<string, unknown>> | undefined;
+      if (agentList) {
+        const ids = agentList.map(a => (a.id || a.agentId) as string).filter(Boolean).sort();
+        setAgents(ids);
+      }
+    } catch (err) {
+      console.warn('[loadAgents] agents.list not supported, agent picker will be unavailable', err);
     }
   }, []);
 
@@ -210,6 +224,7 @@ export function useGateway() {
         isConnectingRef.current = false;
         storeCredentials(wsUrl, token, authMode, clientId);
         loadSessions();
+        loadAgents();
         loadAgentIdentity();
         loadHistory(activeSessionRef.current);
       } else if (s === 'pairing') {
@@ -347,7 +362,7 @@ export function useGateway() {
     isConnectingRef.current = true;
     setConnectError(null);
     client.connect();
-  }, [handleAgentEvent, loadHistory, loadSessions, loadAgentIdentity]);
+  }, [handleAgentEvent, loadHistory, loadSessions, loadAgents, loadAgentIdentity]);
 
   // On mount: try stored credentials
   const initRef = useRef(false);
@@ -526,7 +541,7 @@ export function useGateway() {
   }, []);
 
   return {
-    status, messages, sessions: enrichedSessions, activeSession, isGenerating, isLoadingHistory,
+    status, messages, sessions: enrichedSessions, agents, activeSession, isGenerating, isLoadingHistory,
     isSessionsLoaded,
     sendMessage, abort, switchSession, createNewSession, createSessionForAgent, loadSessions, deleteSession,
     authenticated, login, logout, connectError, isConnecting, agentIdentity,

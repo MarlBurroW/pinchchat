@@ -32,7 +32,7 @@ function getSavedSplitRatio(): number {
 
 export default function App() {
   const {
-    status, messages, sessions, activeSession, isGenerating, isLoadingHistory,
+    status, messages, sessions, agents, activeSession, isGenerating, isLoadingHistory,
     sendMessage, abort, switchSession, deleteSession, createNewSession, createSessionForAgent,
     authenticated, login, logout, connectError, isConnecting, agentIdentity,
     getClient, addEventListener, isSessionsLoaded,
@@ -213,6 +213,7 @@ export default function App() {
       <a href="#chat-input" className="sr-only focus:not-sr-only focus:absolute focus:z-[100] focus:top-2 focus:left-2 focus:px-4 focus:py-2 focus:rounded-xl focus:bg-pc-accent focus:text-white focus:text-sm focus:font-medium">{t('app.skipToChat')}</a>
       <Sidebar
         sessions={sessions}
+        agents={agents}
         activeSession={activeSession}
         onSwitch={switchSession}
         onDelete={deleteSession}

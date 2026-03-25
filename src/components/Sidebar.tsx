@@ -82,25 +82,16 @@ function FilterChipIcon({ cat, size = 12 }: { cat: string; size?: number }) {
   }
 }
 
-function NewSessionSplitButton({ onNewSession, onNewSessionForAgent, sessions }: {
+export function NewSessionSplitButton({ onNewSession, onNewSessionForAgent, agents }: {
   onNewSession: () => Promise<void>;
   onNewSessionForAgent: (agentId: string) => Promise<void>;
-  sessions: Session[];
+  agents: string[];
 }) {
   const t = useT();
   const [open, setOpen] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
 
-  const agentIds = useMemo(() => {
-    const ids = new Set<string>();
-    sessions.forEach(s => {
-      const id = s.agentId || extractAgentIdFromKey(s.key);
-      if (id) ids.add(id);
-    });
-    return Array.from(ids).sort();
-  }, [sessions]);
-
-  const showDropdown = agentIds.length >= 2;
+  const showDropdown = agents.length >= 2;
 
   useEffect(() => {
     if (!open) return;
@@ -140,7 +131,7 @@ function NewSessionSplitButton({ onNewSession, onNewSessionForAgent, sessions }:
           <div className="px-3 py-1.5 text-[10px] text-pc-text-muted border-b border-pc-border font-medium uppercase tracking-wider">
             {t('sidebar.selectAgent')}
           </div>
-          {agentIds.map(id => (
+          {agents.map(id => (
             <button
               key={id}
               onClick={() => { void onNewSessionForAgent(id); setOpen(false); }}
@@ -159,6 +150,7 @@ function NewSessionSplitButton({ onNewSession, onNewSessionForAgent, sessions }:
 
 interface Props {
   sessions: Session[];
+  agents?: string[];
   activeSession: string;
   onSwitch: (key: string) => void;
   onDelete: (key: string) => void;
@@ -172,7 +164,7 @@ interface Props {
   onToast?: (opts: { message: string; type: 'success' | 'warning' }) => void;
 }
 
-export function Sidebar({ sessions, activeSession, onSwitch, onDelete, onSplit, splitSession, open, onClose, onRename, onNewSession, onNewSessionForAgent, onToast }: Props) {
+export function Sidebar({ sessions, agents = [], activeSession, onSwitch, onDelete, onSplit, splitSession, open, onClose, onRename, onNewSession, onNewSessionForAgent, onToast }: Props) {
   const t = useT();
   const [filter, setFilter] = useState('');
   const [focusIdx, setFocusIdx] = useState(-1);
@@ -392,7 +384,7 @@ export function Sidebar({ sessions, activeSession, onSwitch, onDelete, onSplit, 
               <NewSessionSplitButton
                 onNewSession={onNewSession}
                 onNewSessionForAgent={onNewSessionForAgent}
-                sessions={sessions}
+                agents={agents}
               />
             )}
             <button onClick={onClose} className="lg:hidden p-1.5 rounded-xl hover:bg-[var(--pc-hover)] text-pc-text-secondary transition-colors" aria-label={t('sidebar.close')}>
