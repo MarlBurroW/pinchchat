@@ -53,6 +53,20 @@ export interface AgentIdentity {
   agentId?: string;
 }
 
+export interface ExecApproval {
+  id: string;
+  command: string;
+  commandArgv: string[];
+  cwd: string;
+  agentId: string;
+  sessionKey: string;
+  expiresAtMs: number;
+  resolvedPath?: string;
+  commandPreview?: string;
+}
+
+export type ExecApprovalDecision = 'allow-once' | 'allow-always' | 'deny';
+
 export type ConnectionStatus = 'disconnected' | 'connecting' | 'connected' | 'pairing';
 
 export interface GatewayState {

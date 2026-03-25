@@ -123,7 +123,7 @@ export class GatewayClient {
   private async handleChallenge() {
     const id = genId('connect');
     const role = 'operator';
-    const scopes = ['operator.read', 'operator.write', 'operator.admin'];
+    const scopes = ['operator.read', 'operator.write', 'operator.admin', 'operator.approvals'];
     const signedAtMs = Date.now();
     const nonce = this.connectNonce ?? undefined;
 

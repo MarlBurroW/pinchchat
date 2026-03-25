@@ -213,6 +213,19 @@ const en = {
   'slash.reset': 'Reset the session',
   'slash.new': 'Create a new chat session',
   'slash.help': 'Show available commands',
+
+  // Exec approval
+  'approval.title': 'Command Approval Required',
+  'approval.command': 'Command',
+  'approval.cwd': 'Working directory',
+  'approval.agent': 'Agent',
+  'approval.session': 'Session',
+  'approval.expiresIn': 'Expires in {0}s',
+  'approval.expired': 'Expired',
+  'approval.deny': 'Deny',
+  'approval.allowOnce': 'Allow Once',
+  'approval.allowAlways': 'Allow Always',
+  'approval.queueCount': '{0} of {1}',
 } as const;
 
 const fr: Record<keyof typeof en, string> = {
@@ -405,6 +418,17 @@ const fr: Record<keyof typeof en, string> = {
   'slash.reset': 'Réinitialiser la session',
   'slash.new': 'Créer une nouvelle session de chat',
   'slash.help': 'Afficher les commandes disponibles',
+  'approval.title': 'Approbation de commande requise',
+  'approval.command': 'Commande',
+  'approval.cwd': 'Répertoire de travail',
+  'approval.agent': 'Agent',
+  'approval.session': 'Session',
+  'approval.expiresIn': 'Expire dans {0}s',
+  'approval.expired': 'Expiré',
+  'approval.deny': 'Refuser',
+  'approval.allowOnce': 'Autoriser une fois',
+  'approval.allowAlways': 'Toujours autoriser',
+  'approval.queueCount': '{0} sur {1}',
 };
 
 const es: Record<keyof typeof en, string> = {
@@ -597,6 +621,17 @@ const es: Record<keyof typeof en, string> = {
   'slash.reset': 'Reiniciar la sesión',
   'slash.new': 'Crear una nueva sesión de chat',
   'slash.help': 'Mostrar comandos disponibles',
+  'approval.title': 'Aprobación de comando requerida',
+  'approval.command': 'Comando',
+  'approval.cwd': 'Directorio de trabajo',
+  'approval.agent': 'Agente',
+  'approval.session': 'Sesión',
+  'approval.expiresIn': 'Expira en {0}s',
+  'approval.expired': 'Expirado',
+  'approval.deny': 'Denegar',
+  'approval.allowOnce': 'Permitir una vez',
+  'approval.allowAlways': 'Permitir siempre',
+  'approval.queueCount': '{0} de {1}',
 };
 
 export type TranslationKey = keyof typeof en;
@@ -791,6 +826,17 @@ const de: Record<keyof typeof en, string> = {
   'slash.reset': 'Sitzung zurücksetzen',
   'slash.new': 'Neue Chat-Sitzung erstellen',
   'slash.help': 'Verfügbare Befehle anzeigen',
+  'approval.title': 'Befehlsgenehmigung erforderlich',
+  'approval.command': 'Befehl',
+  'approval.cwd': 'Arbeitsverzeichnis',
+  'approval.agent': 'Agent',
+  'approval.session': 'Sitzung',
+  'approval.expiresIn': 'Läuft ab in {0}s',
+  'approval.expired': 'Abgelaufen',
+  'approval.deny': 'Ablehnen',
+  'approval.allowOnce': 'Einmal erlauben',
+  'approval.allowAlways': 'Immer erlauben',
+  'approval.queueCount': '{0} von {1}',
 };
 
 const ja: Record<keyof typeof en, string> = {
@@ -983,6 +1029,17 @@ const ja: Record<keyof typeof en, string> = {
   'slash.reset': 'セッションをリセット',
   'slash.new': '新しいチャットセッションを作成',
   'slash.help': '利用可能なコマンドを表示',
+  'approval.title': 'コマンドの承認が必要です',
+  'approval.command': 'コマンド',
+  'approval.cwd': '作業ディレクトリ',
+  'approval.agent': 'エージェント',
+  'approval.session': 'セッション',
+  'approval.expiresIn': '{0}秒後に期限切れ',
+  'approval.expired': '期限切れ',
+  'approval.deny': '拒否',
+  'approval.allowOnce': '一度だけ許可',
+  'approval.allowAlways': '常に許可',
+  'approval.queueCount': '{1}件中{0}件目',
 };
 
 const pt: Record<keyof typeof en, string> = {
@@ -1175,6 +1232,17 @@ const pt: Record<keyof typeof en, string> = {
   'slash.reset': 'Redefinir sessão',
   'slash.new': 'Criar uma nova sessão de chat',
   'slash.help': 'Mostrar comandos disponíveis',
+  'approval.title': 'Aprovação de comando necessária',
+  'approval.command': 'Comando',
+  'approval.cwd': 'Diretório de trabalho',
+  'approval.agent': 'Agente',
+  'approval.session': 'Sessão',
+  'approval.expiresIn': 'Expira em {0}s',
+  'approval.expired': 'Expirado',
+  'approval.deny': 'Negar',
+  'approval.allowOnce': 'Permitir uma vez',
+  'approval.allowAlways': 'Permitir sempre',
+  'approval.queueCount': '{0} de {1}',
 };
 
 const zh: Record<keyof typeof en, string> = {
@@ -1367,6 +1435,17 @@ const zh: Record<keyof typeof en, string> = {
   'slash.reset': '重置会话',
   'slash.new': '创建新的聊天会话',
   'slash.help': '显示可用命令',
+  'approval.title': '需要命令审批',
+  'approval.command': '命令',
+  'approval.cwd': '工作目录',
+  'approval.agent': '代理',
+  'approval.session': '会话',
+  'approval.expiresIn': '{0}秒后过期',
+  'approval.expired': '已过期',
+  'approval.deny': '拒绝',
+  'approval.allowOnce': '允许一次',
+  'approval.allowAlways': '始终允许',
+  'approval.queueCount': '{1}个中的第{0}个',
 };
 
 const it: Record<keyof typeof en, string> = {
@@ -1559,6 +1638,17 @@ const it: Record<keyof typeof en, string> = {
   'slash.reset': 'Reimposta sessione',
   'slash.new': 'Crea una nuova sessione chat',
   'slash.help': 'Mostra comandi disponibili',
+  'approval.title': 'Approvazione comando richiesta',
+  'approval.command': 'Comando',
+  'approval.cwd': 'Directory di lavoro',
+  'approval.agent': 'Agente',
+  'approval.session': 'Sessione',
+  'approval.expiresIn': 'Scade tra {0}s',
+  'approval.expired': 'Scaduto',
+  'approval.deny': 'Rifiuta',
+  'approval.allowOnce': 'Consenti una volta',
+  'approval.allowAlways': 'Consenti sempre',
+  'approval.queueCount': '{0} di {1}',
 };
 
 const messages: Record<string, Record<string, string>> = { en, fr, es, de, ja, pt, zh, it };

@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback, useRef, lazy, Suspense } from 'react';
 import { useGateway } from './hooks/useGateway';
 import { useSecondarySession } from './hooks/useSecondarySession';
+import { useExecApprovals } from './hooks/useExecApprovals';
+import { ExecApprovalModal } from './components/ExecApprovalModal';
 import { useNotifications, setBaseTitle } from './hooks/useNotifications';
 import { Header } from './components/Header';
 import { Sidebar } from './components/Sidebar';
@@ -41,6 +43,7 @@ export default function App() {
   const splitContainerRef = useRef<HTMLDivElement>(null);
   const splitRatioRef = useRef(splitRatio);
   const secondary = useSecondarySession(getClient, addEventListener, splitSession);
+  const { currentApproval, pendingApprovals, resolve: resolveApproval } = useExecApprovals(getClient, addEventListener, status);
   const t = useT();
   const resolveAgentDisplayName = useCallback((sessionKey: string | null | undefined): string | undefined => {
     if (!sessionKey) return agentIdentity?.name;
@@ -263,6 +266,13 @@ export default function App() {
         )}
       </div>
       <KeyboardShortcuts open={shortcutsOpen} onClose={() => setShortcutsOpen(false)} />
+      {currentApproval && (
+        <ExecApprovalModal
+          approval={currentApproval}
+          queueSize={pendingApprovals.length}
+          onResolve={resolveApproval}
+        />
+      )}
     </div>
     {toast && <Toast message={toast.message} type={toast.type} leaving={toast.leaving} />}
     </ToolCollapseProvider>
