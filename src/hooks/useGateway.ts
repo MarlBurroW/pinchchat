@@ -218,6 +218,7 @@ export function useGateway() {
     client.onStatus((s) => {
       setStatus(s);
       if (s === 'connected') {
+        setIsGenerating(false);
         setAuthenticated(true);
         setConnectError(null);
         setIsConnecting(false);
