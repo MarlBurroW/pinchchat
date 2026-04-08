@@ -477,7 +477,10 @@ export function useGateway() {
   }, [createSessionWithConfig]);
 
   const createSessionForAgent = useCallback(async (agentId: string) => {
-    await createSessionWithConfig(agentId, 'webchat');
+    const currentKey = activeSessionRef.current;
+    const currentSession = sessionsRef.current.find((s) => s.key === currentKey);
+    const targetChannel = currentSession?.channel || 'webchat';
+    await createSessionWithConfig(agentId, targetChannel);
   }, [createSessionWithConfig]);
 
   const login = useCallback((url: string, token: string, authMode: AuthMode = 'token', clientId?: string) => {
