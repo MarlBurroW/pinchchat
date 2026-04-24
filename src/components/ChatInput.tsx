@@ -25,7 +25,6 @@ export interface ComposerInsertRequest {
 
 interface Props {
   onSend: (text: string, attachments?: Array<{ mimeType: string; fileName: string; content: string }>) => void;
-  onNewSession?: () => Promise<void>;
   onAbort: () => void;
   isGenerating: boolean;
   disabled: boolean;
@@ -92,7 +91,7 @@ function toQuotedContext(text: string): string {
     .join('\n');
 }
 
-export function ChatInput({ onSend, onNewSession, onAbort, isGenerating, disabled, sessionKey, replyTo, onCancelReply, insertRequest }: Props) {
+export function ChatInput({ onSend, onAbort, isGenerating, disabled, sessionKey, replyTo, onCancelReply, insertRequest }: Props) {
   const t = useT();
   const { sendOnEnter, toggle: toggleSendShortcut } = useSendShortcut();
   const [text, setText] = useState('');
@@ -196,16 +195,6 @@ export function ChatInput({ onSend, onNewSession, onAbort, isGenerating, disable
     const trimmed = text.trim();
     if ((!trimmed && files.length === 0) || disabled) return;
 
-    if ((trimmed === '/new' || trimmed.startsWith('/new ')) && onNewSession) {
-      void onNewSession();
-      setText('');
-      setFiles([]);
-      setShowSlash(false);
-      onCancelReply?.();
-      if (sessionKey) draftsRef.current.delete(sessionKey);
-      return;
-    }
-
     const attachments = files.length > 0 ? files.map(f => ({
       mimeType: f.mimeType,
       fileName: f.file.name,
@@ -300,24 +289,15 @@ export function ChatInput({ onSend, onNewSession, onAbort, isGenerating, disable
               if (!cmd.endsWith(' ')) {
                 setText(cmd);
                 setShowSlash(false);
-                // Submit directly — need to call onSend/onNewSession inline since setState is async
-                if ((cmd === '/new') && onNewSession) {
-                  void onNewSession();
-                  setText('');
-                  setFiles([]);
-                  onCancelReply?.();
-                  if (sessionKey) draftsRef.current.delete(sessionKey);
-                } else {
-                  // For other no-arg commands (e.g. /status, /help), send as text
-                  const finalText = replyTo?.preview
-                    ? `> ${replyTo.preview.split('\n')[0].slice(0, 80)}\n\n${cmd}`
-                    : cmd;
-                  onSend(finalText);
-                  setText('');
-                  setFiles([]);
-                  onCancelReply?.();
-                  if (sessionKey) draftsRef.current.delete(sessionKey);
-                }
+                // Submit directly — need to call onSend inline since setState is async
+                const finalText = replyTo?.preview
+                  ? `> ${replyTo.preview.split('\n')[0].slice(0, 80)}\n\n${cmd}`
+                  : cmd;
+                onSend(finalText);
+                setText('');
+                setFiles([]);
+                onCancelReply?.();
+                if (sessionKey) draftsRef.current.delete(sessionKey);
               } else {
                 setText(cmd);
                 setShowSlash(shouldShowSlashMenu(cmd));
