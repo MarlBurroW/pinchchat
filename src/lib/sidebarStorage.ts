@@ -6,6 +6,7 @@ export const ORDER_KEY = 'pinchchat-session-order';
 export const FILTER_KEY = 'pinchchat-session-filter';
 export const AGENT_FILTER_KEY = 'pinchchat-session-agent-filter';
 export const NAMES_KEY = 'pinchchat-session-names';
+export const FAVORITES_KEY = 'pinchchat-favorite-sessions';
 
 export const MIN_WIDTH = 220;
 export const MAX_WIDTH = 480;
@@ -71,6 +72,20 @@ export function getPinnedSessions(): Set<string> {
 export function savePinnedSessions(pinned: Set<string>): void {
   try {
     localStorage.setItem(PINNED_KEY, JSON.stringify([...pinned]));
+  } catch { /* noop */ }
+}
+
+export function getFavorites(): Set<string> {
+  try {
+    const raw = localStorage.getItem(FAVORITES_KEY);
+    if (raw) return new Set(JSON.parse(raw) as string[]);
+  } catch { /* noop */ }
+  return new Set();
+}
+
+export function saveFavorites(favs: Set<string>): void {
+  try {
+    localStorage.setItem(FAVORITES_KEY, JSON.stringify([...favs]));
   } catch { /* noop */ }
 }
 
