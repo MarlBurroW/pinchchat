@@ -17,7 +17,6 @@ interface Props {
   status: ConnectionStatus;
   sessionKey?: string;
   onSend: (text: string, attachments?: Array<{ mimeType: string; fileName: string; content: string }>) => void;
-  onNewSession?: () => Promise<void>;
   onAbort: () => void;
   agentAvatarUrl?: string;
   agentName?: string;
@@ -71,7 +70,7 @@ function getDateKey(ts: number): string {
 /** Threshold in pixels — if the user is within this distance of the bottom, auto-scroll */
 const SCROLL_THRESHOLD = 150;
 
-export function Chat({ messages, isGenerating, isLoadingHistory, status, sessionKey, onSend, onNewSession, onAbort, agentAvatarUrl, agentName }: Props) {
+export function Chat({ messages, isGenerating, isLoadingHistory, status, sessionKey, onSend, onAbort, agentAvatarUrl, agentName }: Props) {
   const t = useT();
   const bottomRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -428,7 +427,7 @@ export function Chat({ messages, isGenerating, isLoadingHistory, status, session
           </div>
         )}
       </div>
-      <ChatInput onSend={handleSend} onNewSession={onNewSession} onAbort={onAbort} isGenerating={isGenerating} disabled={status !== 'connected'} sessionKey={sessionKey} replyTo={replyTo} onCancelReply={() => setReplyTo(null)} insertRequest={insertRequest} />
+      <ChatInput onSend={handleSend} onAbort={onAbort} isGenerating={isGenerating} disabled={status !== 'connected'} sessionKey={sessionKey} replyTo={replyTo} onCancelReply={() => setReplyTo(null)} insertRequest={insertRequest} />
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import { useState, useMemo, useRef, useEffect, useCallback } from 'react';
-import { X, Search, Pin, Trash2, Columns2, Clock, Bot, MessageSquare, Globe, Zap, ArrowUpCircle, Download, Pencil, Link, Plus, ChevronDown } from 'lucide-react';
+import { X, Search, Pin, Star, Trash2, Columns2, Clock, Bot, MessageSquare, Globe, Zap, ArrowUpCircle, Download, Pencil, Link, Plus, ChevronDown } from 'lucide-react';
 import type { Session } from '../types';
 import { useT } from '../hooks/useLocale';
 import { SessionIcon } from './SessionIcon';
@@ -13,6 +13,7 @@ import {
   getCustomNames, saveCustomNames,
   sessionCategory, getAvailableCategories, categoryLabel,
   getSavedWidth, getPinnedSessions, savePinnedSessions,
+  getFavorites, saveFavorites,
   getSavedOrder, saveOrder,
 } from '../lib/sidebarStorage';
 import { copyToClipboard } from '../lib/clipboard';
@@ -169,6 +170,7 @@ export function Sidebar({ sessions, agents = [], activeSession, onSwitch, onDele
   const [filter, setFilter] = useState('');
   const [focusIdx, setFocusIdx] = useState(-1);
   const [pinned, setPinned] = useState(getPinnedSessions);
+  const [favorites, setFavorites] = useState(getFavorites);
   const [width, setWidth] = useState(getSavedWidth);
   const [dragging, setDragging] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
@@ -233,6 +235,17 @@ export function Sidebar({ sessions, agents = [], activeSession, onSwitch, onDele
       if (next.has(key)) next.delete(key);
       else next.add(key);
       savePinnedSessions(next);
+      return next;
+    });
+  }, []);
+
+  const toggleFavorite = useCallback((key: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setFavorites(prev => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      saveFavorites(next);
       return next;
     });
   }, []);
@@ -332,7 +345,9 @@ export function Sidebar({ sessions, agents = [], activeSession, onSwitch, onDele
   const filtered = useMemo(() => {
     let list = sessions;
     // Apply channel filter
-    if (channelFilter === 'active') {
+    if (channelFilter === 'favorites') {
+      list = list.filter(s => favorites.has(s.key));
+    } else if (channelFilter === 'active') {
       list = list.filter(s => s.isActive);
     } else if (channelFilter) {
       list = list.filter(s => sessionCategory(s) === channelFilter);
@@ -363,7 +378,7 @@ export function Sidebar({ sessions, agents = [], activeSession, onSwitch, onDele
     pinnedList.sort(byCustomThenRecent);
     unpinnedList.sort(byCustomThenRecent);
     return [...pinnedList, ...unpinnedList];
-  }, [sessions, filter, pinned, customOrder, channelFilter, agentFilter, customNames]);
+  }, [sessions, filter, pinned, favorites, customOrder, channelFilter, agentFilter, customNames]);
 
   return (
     <>
@@ -449,6 +464,19 @@ export function Sidebar({ sessions, agents = [], activeSession, onSwitch, onDele
                 >
                   <Zap size={10} />
                   {t('sidebar.filterActive')}
+                </button>
+                <button
+                  onClick={() => toggleChannelFilter('favorites')}
+                  className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium transition-colors border ${
+                    channelFilter === 'favorites'
+                      ? 'bg-amber-500/15 text-amber-300 border-amber-500/30'
+                      : 'bg-transparent text-pc-text-muted border-pc-border hover:bg-[var(--pc-hover)] hover:text-pc-text-secondary'
+                  }`}
+                  aria-label={t('sidebar.filterFavorites')}
+                  aria-pressed={channelFilter === 'favorites'}
+                >
+                  <Star size={10} />
+                  {t('sidebar.filterFavorites')}
                 </button>
                 {availableCategories.map(cat => (
                   <button
@@ -565,6 +593,7 @@ export function Sidebar({ sessions, agents = [], activeSession, onSwitch, onDele
             const isActive = s.key === activeSession;
             const isFocused = idx === focusIdx;
             const isPinned = pinned.has(s.key);
+            const isFav = favorites.has(s.key);
             const isFirstUnpinned = !isPinned && idx > 0 && pinned.has(filtered[idx - 1].key);
             const isDragged = dragKey === s.key;
             const isDropTarget = dropTarget === s.key && dragKey !== s.key;
@@ -681,6 +710,18 @@ export function Sidebar({ sessions, agents = [], activeSession, onSwitch, onDele
                         aria-label={isPinned ? t('sidebar.unpin') : t('sidebar.pin')}
                       >
                         <Pin size={12} className={isPinned ? 'fill-current' : ''} />
+                      </button>
+                      <button
+                        onClick={(e) => toggleFavorite(s.key, e)}
+                        className={`shrink-0 p-0.5 rounded-lg transition-all ${
+                          isFav
+                            ? 'text-amber-400 opacity-80 hover:opacity-100'
+                            : 'text-pc-text-faint opacity-0 group-hover/item:opacity-60 hover:!opacity-100 hover:text-pc-text-secondary'
+                        }`}
+                        title={isFav ? t('sidebar.unfavorite') : t('sidebar.favorite')}
+                        aria-label={isFav ? t('sidebar.unfavorite') : t('sidebar.favorite')}
+                      >
+                        <Star size={12} className={isFav ? 'fill-current' : ''} />
                       </button>
                       <button
                         onClick={async (e) => {
