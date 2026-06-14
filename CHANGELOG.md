@@ -4,6 +4,11 @@ All notable changes to PinchChat are documented here.
 
 Format based on [Keep a Changelog](https://keepachangelog.com/), with [Conventional Commits](https://www.conventionalcommits.org/).
 
+## [1.71.4] — 2026-06-14
+
+### Fixed
+- Widen advertised WebSocket protocol range from `3–3` to `3–4` to support OpenClaw 2026.6.1 gateways (`PROTOCOL_MISMATCH` close code 1002). Backward-compatible with protocol-3 gateways. (fixes #42, by @Callumro)
+
 ## [1.37.0] — 2026-02-13
 
 ### Added
