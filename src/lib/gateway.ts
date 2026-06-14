@@ -153,7 +153,7 @@ export class GatewayClient {
     try {
       const res = await this.request(id, 'connect', {
         minProtocol: 3,
-        maxProtocol: 3,
+        maxProtocol: 4,
         client: { id: this.clientId, version: __APP_VERSION__, platform: 'web', mode: 'webchat' },
         role,
         scopes,
